@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const FRAME_COUNT = 795;
 const framePath = (index) =>
-  `/compressed_images/new_Sequence${String(index).padStart(3, "0")}.png`;
+  `/compressed_images/frame_${String(index + 1).padStart(4, "0")}.webp`;
 
 export default function Hero() {
   const canvasRef = useRef(null);
