@@ -1,101 +1,75 @@
-const CAPTION =
-  "We create digital experiences for factories, manufacturers, and industrial brands that need to communicate complex products with clarity. From product presentation to digital catalogues, we turn technical information into engaging brand experiences.";
-
-const STEPS = {
-  step01: {
-    number: "01 Discovery",
-    description: "Understanding your production goals, product type, and capacity.",
-  },
-  step02: {
-    number: "02 Engineering Design",
-    description: "Planning machinery layout and process flow.",
-  },
-  step03: {
-    number: "03 Manufacturing",
-    description: "Precision fabrication using food-grade materials.",
-  },
-  step04: {
-    number: "04 Installation & Commissioning",
-    description: "Operator guidance until successful production.",
-  },
-  step05: {
-    number: "05 Training & Launch Support",
-    description: "Operator guidance until successful production.",
-  },
-};
-
-function Step({ step }) {
-  return (
-    <div>
-      <h2>{step.number}</h2>
-      <p className="mt-2 text-sm">{step.description}</p>
-    </div>
-  );
-}
-
-function Caption() {
-  return <p className="text-xs text-justify opacity-70">{CAPTION}</p>;
-}
+import Image from "next/image";
 
 export default function FactoryManufacturing() {
   return (
     <div id="factory-manufacturing" className="px-[2rem] py-[6rem]">
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl leading-tight">
+      <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
         Factory &amp; Manufacturing
       </h1>
-
-      <div className="mt-[3rem] grid grid-cols-1 gap-8 sm:grid-cols-2">
-        <p className="text-xs text-justify opacity-70 sm:w-3/4">
-          We create digital experiences that bring manufacturing brands into
-          the modern world. From industrial websites to product showcases,
-          we combine clear communication with purposeful design. Every
-          detail is built to make complex products easier to understand and
-          remember.
-        </p>
-      </div>
+      <p className="mt-[2rem] max-w-sm text-xs text-justify">
+        DOSTAN&apos;s manufacturing facility brings engineering expertise,
+        precision fabrication, and rigorous quality standards together under
+        one roof. From individual components to complete processing
+        machinery, every system is manufactured with attention to detail and
+        built for demanding industrial environments.
+      </p>
 
       <div className="mt-[3rem] grid grid-cols-1 gap-8 sm:grid-cols-2">
         {/* left column */}
         <div className="flex flex-col gap-6">
-          <div className="aspect-[4/5] bg-white"></div>
-          <Caption />
+          <div className="relative aspect-[9/10] bg-line">
+            <Image
+              src="/images/machines/FACTORY-IMG-01.webp"
+              alt="Factory floor"
+              fill
+              sizes="(min-width: 640px) 50vw, 100vw"
+              className="object-cover"
+            />
+          </div>
+          <p className="max-w-xs text-xs text-justify opacity-70">
+            Food-grade materials and carefully engineered designs support
+            hygienic production and reliable operation across processing
+            environments.
+          </p>
 
-          <div className="mt-6">
-            <Step step={STEPS.step02} />
+          <div className="relative mt-[3rem] aspect-[3/2] bg-line">
+            <Image
+              src="/images/machines/AGEING-VAT-MAHINCE.png"
+              alt="Ageing vat"
+              fill
+              sizes="(min-width: 640px) 50vw, 100vw"
+              className="object-contain"
+            />
           </div>
 
-          <div className="aspect-[4/3] bg-white"></div>
-
-          <Step step={STEPS.step03} />
-
-          <div className="mt-16">
-            <Step step={STEPS.step04} />
-          </div>
-
-          <div className="aspect-[16/9] bg-white"></div>
-
-          <Step step={STEPS.step05} />
+          <p className="mt-[10rem] max-w-xs text-xs text-justify opacity-70">
+            Robust construction and practical engineering create machinery
+            designed to perform consistently under demanding production
+            conditions.
+          </p>
         </div>
 
         {/* right column */}
-        <div className="flex flex-col gap-6">
-          <Step step={STEPS.step01} />
-
-          <div className="aspect-[4/5] w-1/2 bg-white"></div>
-
-          <div className="mt-16">
-            <div className="aspect-[16/10] bg-white"></div>
-            <div className="mt-6">
-              <Caption />
-            </div>
+        <div className="flex flex-col gap-6 sm:mt-[6rem]">
+          <p className="max-w-xs text-xs text-justify">
+            Advanced fabrication and skilled workmanship ensure every machine
+            is built with accuracy, consistency, and structural integrity.
+          </p>
+          <div className="relative aspect-[9/10] w-1/2 bg-line">
+            <Image
+              src="/images/machines/PASTEURIZER-VAN-MACHINE.png"
+              alt="Pasteurizer vat"
+              fill
+              sizes="(min-width: 640px) 25vw, 50vw"
+              className="object-contain"
+            />
           </div>
 
-          <div className="mt-6">
-            <div className="aspect-[12/5] bg-white"></div>
-            <div className="mt-6">
-              <Caption />
-            </div>
-          </div>
+          <p className="mt-[3rem] max-w-sm text-xs text-justify opacity-70">
+            Every stage of manufacturing is closely monitored to maintain
+            dimensional accuracy, finish quality, and dependable machine
+            performance.
+          </p>
         </div>
       </div>
     </div>

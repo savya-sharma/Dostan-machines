@@ -30,30 +30,27 @@ const STATS = [
 ];
 
 function AnimatedNumber({ target, suffix, inView }) {
-  const [value, setValue] = useState(0);
+  const elRef = useRef(null);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || !elRef.current) return;
     const duration = 1500;
     const start = performance.now();
     let raf;
 
     function tick(now) {
       const progress = Math.min((now - start) / duration, 1);
-      setValue(Math.round(progress * target));
+      if (elRef.current) {
+        elRef.current.textContent = `${Math.round(progress * target)}${suffix}`;
+      }
       if (progress < 1) raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(raf);
-  }, [inView, target]);
+  }, [inView, target, suffix]);
 
-  return (
-    <>
-      {value}
-      {suffix}
-    </>
-  );
+  return <span ref={elRef}>{`0${suffix}`}</span>;
 }
 
 export default function Process() {
@@ -86,13 +83,16 @@ export default function Process() {
 
       <div className="mt-[3rem] sm:mt-[4rem] flex flex-col gap-8 max-w-3xl">
         <p className="text-lg sm:text-xl leading-relaxed text-justify opacity-70">
-          Dostan Machines proudly serves clients across India, Asia, Africa,
-          the Middle East, and other international markets.
+          DOSTAN proudly serves clients across India, Asia, Africa, the
+          Middle East, and other international markets, delivering reliable
+          processing solutions to a growing range of food manufacturing
+          industries.
         </p>
         <p className="text-lg sm:text-xl leading-relaxed text-justify opacity-70">
-          Our commitment to quality, innovation, and customer satisfaction
-          has helped us establish a growing global footprint in the food
-          processing industry.
+          Built on a commitment to quality, engineering excellence, and
+          customer satisfaction, DOSTAN continues to expand its global
+          footprint—bringing dependable machinery and processing expertise to
+          production facilities across borders.
         </p>
       </div>
 

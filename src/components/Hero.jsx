@@ -3,11 +3,10 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
 
 const FRAME_COUNT = 795;
 const framePath = (index) =>
-  `/compressed_images/frame_${String(index).padStart(4, "0")}.jpg`;
+  `/compressed_images/new_Sequence${String(index).padStart(3, "0")}.png`;
 
 export default function Hero() {
   const canvasRef = useRef(null);
@@ -21,8 +20,8 @@ export default function Hero() {
     const ctx = canvas.getContext("2d");
     const images = [];
     const frameState = { currentIndex: 0 };
-    let lenis;
     let cancelled = false;
+    let gsapCtx;
 
     function setCanvasSize() {
       canvas.width = window.innerWidth;
@@ -46,36 +45,28 @@ export default function Hero() {
     }
 
     function startScrollAnimation() {
-      lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-      });
-      lenis.on("scroll", ScrollTrigger.update);
-
-      gsap.ticker.add((time) => lenis.raf(time * 1000));
-      gsap.ticker.lagSmoothing(0);
-
-      gsap.to(frameState, {
-        currentIndex: images.length - 1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: parentRef.current,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 2,
-          pin: pinRef.current,
-          pinSpacing: false,
-          anticipatePin: 1,
-          onUpdate: (self) => {
-            drawFrame(Math.floor(frameState.currentIndex));
+      gsapCtx = gsap.context(() => {
+        gsap.to(frameState, {
+          currentIndex: images.length - 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: parentRef.current,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 2,
+            pin: pinRef.current,
+            pinSpacing: false,
+            anticipatePin: 1,
+            onUpdate: (self) => {
+              drawFrame(Math.floor(frameState.currentIndex));
+            },
           },
-        },
+        });
       });
     }
 
     let settledCount = 0;
-    for (let i = 1; i <= FRAME_COUNT; i++) {
+    for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image();
       img.src = framePath(i);
       const onSettle = () => {
@@ -98,13 +89,12 @@ export default function Hero() {
     return () => {
       cancelled = true;
       window.removeEventListener("resize", onResize);
-      lenis?.destroy();
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      gsapCtx?.revert();
     };
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-ink text-surface">
+    <section id="home" className="relative overflow-hidden bg-ink text-surface">
       <div ref={parentRef} className="relative h-[700vh] w-full">
         <div ref={pinRef} className="h-screen w-full">
           <canvas ref={canvasRef} className="h-screen w-full" />

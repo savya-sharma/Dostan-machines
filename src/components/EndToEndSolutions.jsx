@@ -1,121 +1,126 @@
+import Image from "next/image";
 import { CornerDownRight } from "lucide-react";
 
-const SPEC_LIST = [
-  "High-grade industrial materials",
-  "Industrial & commercial use",
-  "Precision-engineered",
-  "High efficiency & reliable operation",
-  "Designed for long-term service",
+const FEATURES = [
+  {
+    title: "Build For Reliability",
+    description:
+      "Robust machinery designed for consistent performance and continuous production.",
+  },
+  {
+    title: "Tailored To Your Process",
+    description:
+      "Solutions developed around your product, capacity, layout, and specific production requirements.",
+  },
+  {
+    title: "Turnkey Execution",
+    description:
+      "From initial planning to installation, commissioning, and operator support—we manage the complete execution.",
+  },
+  {
+    title: "Scalable Production",
+    description:
+      "Systems designed to support your current operation while allowing room for future expansion.",
+  },
+  {
+    title: "Technical Expertise",
+    description:
+      "Engineering knowledge and practical experience that turn complex production requirements into workable solutions.",
+  },
 ];
 
-const PRODUCTS = [
+const STRIP_IMAGES = [
   {
-    title: "High pressure homogenizer",
-    description:
-      "Our High Pressure Homogenizers ensure uniform mixing, improved texture, and enhanced product stability by reducing particle size through high-pressure processing. Ideal for dairy, ice cream, beverage, and food processing applications.",
-    imageSide: "left",
+    name: "Pasteurizer Tank",
+    image: "/images/machines/PASTEURIZER-TANK-MACHINE.webp",
+    aspect: "aspect-[508/510]",
   },
   {
-    title: "Continuous freezer",
-    description:
-      "Continuous Freezers are advanced ice cream processing machines designed to deliver consistent texture, smoothness, and controlled overrun during continuous production. They ensure high efficiency, superior product quality, and increased output capacity.",
-    imageSide: "right",
+    name: "Cooling tower",
+    image: "/images/machines/COOLING-TOWER-MACHINE.webp",
+    aspect: "aspect-[415/510]",
   },
   {
-    title: "Cooling Tower",
-    description:
-      "Cooling Towers are designed to efficiently dissipate heat from industrial processes, ensuring optimal equipment performance, reduced energy consumption, and reliable cooling for dairy, ice cream, and food processing plants. End-to-end automated and semi-automated ice cream manufacturing systems including mix preparation, pasteurization, homogenization, aging, freezing, filling, and hardening.",
-    imageSide: "left",
-  },
-  {
-    title: "Plate heat exchanger",
-    description:
-      "Plate Heat Exchangers are highly efficient thermal systems designed for rapid heating and cooling of dairy, food, and beverage products. They ensure optimal heat transfer, energy savings, and consistent product quality.",
-    imageSide: "right",
-  },
-  {
-    title: "Pasteurizer Tank",
-    description:
-      "Pasteurizer Tanks are designed for efficient heat treatment of milk, cream, and other liquid products, ensuring food safety, extended shelf life, and consistent product quality while maintaining nutritional value.",
-    imageSide: "left",
+    name: "Plate Heat Exchanger",
+    image: "/images/machines/PLATE-HEAT-EXCHANGER-MACHINE.webp",
+    aspect: "aspect-[277/510]",
   },
 ];
 
 export default function EndToEndSolutions() {
   return (
     <div id="end-to-end-solutions" className="px-[2rem] py-[6rem]">
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl leading-tight">End To End Solution</h1>
-
-      <div className="mt-[3rem] flex flex-col gap-8 sm:flex-row sm:gap-16">
-        <div className="sm:w-1/2">
-          <h2>Engineered for Quality</h2>
-          <p className="mt-[1rem] text-sm text-justify opacity-70">
-            Precision-engineered systems built with food-grade materials and
-            rigorous quality standards for hygienic, consistent performance.
-          </p>
-        </div>
-        <div className="sm:w-1/2">
-          <h2>Built for Reliability</h2>
-          <p className="mt-[1rem] text-sm text-justify opacity-70">
-            Robust machinery designed for continuous operation, long-term
-            durability, and dependable performance in demanding production
-            environments
-          </p>
-        </div>
+      <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+        <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
+          End To End Solution
+        </h1>
+        <p className="text-lg text-right leading-relaxed opacity-70 sm:max-w-md">
+          From individual machines to complete processing systems, DOSTAN
+          delivers engineered solutions designed around your production
+          requirements.
+        </p>
       </div>
 
-      <div className="mt-[4rem] flex flex-col gap-8 sm:flex-row sm:gap-8">
-        <div className="bg-white sm:w-1/2 aspect-[4/3]"></div>
+      <div className="mt-[3rem] grid gap-8 sm:grid-cols-2">
+        <div>
+          <div className="relative aspect-[5/3] bg-line">
+            <Image
+              src="/images/machines/High-PRESSURE-HOMOGENIZER-MACHINE.webp"
+              alt="High pressure homogenizer"
+              fill
+              sizes="(min-width: 640px) 50vw, 100vw"
+              className="object-contain"
+            />
+          </div>
 
-        <div className="sm:w-1/2">
-          <h2>Description</h2>
-          <p className="mt-[1rem] text-sm text-justify opacity-70">
-            Our product range is designed to deliver dependable performance,
-            precision, and long-term reliability across diverse applications.
-            Each solution is developed with careful attention to material
-            quality, engineering standards, and practical functionality. We
-            combine modern manufacturing practices with proven expertise to
-            create products that perform consistently in demanding
-            environments.
-          </p>
-
-          <h2 className="mt-[1.5rem]">Specifications</h2>
-          <div className="mt-[1rem] flex gap-8">
-            <ul className="text-sm opacity-70">
-              {SPEC_LIST.map((item) => (
-                <li key={`spec-a-${item}`}>{item}</li>
-              ))}
-            </ul>
-            <ul className="text-sm opacity-70">
-              {SPEC_LIST.map((item) => (
-                <li key={`spec-b-${item}`}>{item}</li>
-              ))}
-            </ul>
+          <div className="mt-[3rem] flex flex-col gap-8">
+            {FEATURES.map((feature) => (
+              <div key={feature.title}>
+                <h2 className="text-lg font-semibold">{feature.title}</h2>
+                <p className="mt-1 text-sm opacity-70">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
+
+        <div className="relative aspect-[3/4] bg-line sm:mt-[6rem]">
+          <Image
+            src="/images/machines/DM-Dostan.webp"
+            alt="Continuous freezer"
+            fill
+            sizes="(min-width: 640px) 50vw, 100vw"
+            className="object-cover"
+          />
+        </div>
       </div>
 
-      <div className="mt-[5rem] flex flex-col gap-[5rem]">
-        {PRODUCTS.map((product) => (
-          <div
-            key={product.title}
-            className={`flex flex-col gap-8 sm:gap-8 ${
-              product.imageSide === "left" ? "sm:flex-row" : "sm:flex-row-reverse"
-            }`}
-          >
-            <div className="bg-white sm:w-1/2 aspect-[4/3]"></div>
-            <div
-              className={`sm:w-1/2 flex flex-col justify-center ${
-                product.imageSide === "left" ? "text-left" : "text-right"
-              }`}
-            >
-              <h2>{product.title}</h2>
-              <p className="mt-[1rem] text-sm opacity-70">
-                {product.description}
-              </p>
-            </div>
+      <div className="mt-[5rem] grid grid-cols-[1.85fr_1.5fr_1fr]">
+        {STRIP_IMAGES.map((item) => (
+          <div key={item.name} className={`relative bg-line ${item.aspect}`}>
+            <Image
+              src={item.image}
+              alt={item.name}
+              fill
+              sizes="40vw"
+              className="object-contain"
+            />
           </div>
         ))}
+      </div>
+
+      <div className="mt-[3rem] grid gap-8 sm:grid-cols-2">
+        <p className="text-sm opacity-70">
+          Every solution is designed around your process, production
+          capacity, facility, and operational requirements—ensuring the
+          right equipment for the job.
+        </p>
+        <p className="text-sm text-justify opacity-70">
+          From precision manufacturing to installation and commissioning,
+          every stage is focused on delivering reliable performance,
+          efficiency, and lasting value.
+        </p>
       </div>
 
       <div className="mt-[3rem] flex justify-center">

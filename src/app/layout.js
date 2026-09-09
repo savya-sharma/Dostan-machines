@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${suisseIntl.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${suisseIntl.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col overflow-x-hidden">
         <SmoothScroll />

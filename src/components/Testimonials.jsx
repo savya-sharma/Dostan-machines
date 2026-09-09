@@ -6,38 +6,33 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 const TESTIMONIALS = [
   {
     quote:
-      "Dostan Machines redesigned our entire bottling line and cut changeover time in half. Their engineers stayed on-site until every operator was confident.",
-    name: "Aravind Menon,",
-    role: "Plant Manager @ Coastal Beverages",
-    company: "Coastal Beverages",
+      "The machine is very good, and the company's service is excellent. The staff who delivered and supported us were also very professional and helpful.",
+    name: "Milkobites Icecream",
   },
   {
     quote:
-      "From the first site survey to final commissioning, communication was clear and the timeline never slipped. The press forming cell has run flawlessly for two years.",
-    name: "Fatima Al-Rashid,",
-    role: "Operations Director @ Gulf Metal Works",
-    company: "Gulf Metal Works",
+      "I am really happy with my ice cream machine from DOSTAN Machines. Even after the purchase, their team continues to support us and help resolve any issues. Everyone is very cooperative, especially Deepak Sir and Kapil Sir.",
+    name: "Debashis Mallik",
   },
   {
     quote:
-      "We've bought machines from several vendors over the years. Dostan is the only one that still picks up the phone five years after installation.",
-    name: "James Whitfield,",
-    role: "Head of Manufacturing @ Whitfield Automotive",
-    company: "Whitfield Automotive",
+      "I am from Ayodhya, Uttar Pradesh, and purchased a 300L ice cream plant from DOSTAN Machines. All the machines are working very well, and the DOSTAN team has been extremely supportive throughout.",
+    name: "Anupam Yadav",
   },
   {
     quote:
-      "The continuous freezer they installed increased our output capacity without sacrificing texture quality. Exactly the upgrade our plant needed.",
-    name: "Priya Nair,",
-    role: "Production Head @ Nair Dairy Foods",
-    company: "Nair Dairy Foods",
+      "Very good machines and very helpful people. The team is supportive and always willing to help in different ways. I came to know about DOSTAN through YouTube.",
+    name: "Md Azad",
   },
   {
     quote:
-      "Reliable machines, honest lead times, and a team that actually understands food-grade manufacturing. That combination is harder to find than it should be.",
-    name: "Daniel Osei,",
-    role: "Founder @ Osei Processing Co.",
-    company: "Osei Processing Co.",
+      "DOSTAN Machines se judkar bahut achha laga. Bahut achhi company hai. Maine batch freezer liya tha, jo bahut achha chal raha hai.",
+    name: "Arvind Singh",
+  },
+  {
+    quote:
+      "We have had a very positive experience working with DOSTAN Machines. Their team is professional, responsive, and committed to delivering quality products and excellent service.",
+    name: "Mansi Singh",
   },
 ];
 
@@ -57,17 +52,12 @@ export default function Testimonials() {
           <div className="h-full w-full border-4 border-white bg-white"></div>
         </div>
 
-        <div className="relative min-h-[20rem] flex-1 sm:min-h-[16rem] md:min-h-[11rem] lg:min-h-[8rem] xl:min-h-[7rem]">
+        <div className="relative min-h-[20rem] flex-1 sm:min-h-[16rem] md:min-h-[13rem] lg:min-h-[9rem] xl:min-h-[7rem]">
           <p className="text-lg leading-relaxed">&quot;{current.quote}&quot;</p>
 
           <div className="absolute inset-x-0 bottom-0 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm opacity-70">
-                {current.name}
-                <br />
-                {current.role}
-              </p>
-              <p className="mt-1 font-semibold">{current.company}</p>
+              <p className="font-semibold">{current.name}</p>
             </div>
 
             <div className="flex gap-2">
