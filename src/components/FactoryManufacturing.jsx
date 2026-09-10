@@ -1,4 +1,4 @@
-import Image from "next/image";
+import ImageWithSkeleton from "./ImageWithSkeleton";
 
 export default function FactoryManufacturing() {
   return (
@@ -18,7 +18,7 @@ export default function FactoryManufacturing() {
         {/* left column */}
         <div className="flex flex-col gap-6">
           <div className="relative aspect-[9/10] bg-line">
-            <Image
+            <ImageWithSkeleton
               src="/images/machines/FACTORY-IMG-01.webp"
               alt="Factory floor"
               fill
@@ -33,8 +33,8 @@ export default function FactoryManufacturing() {
           </p>
 
           <div className="relative mt-[3rem] aspect-[3/2] bg-line">
-            <Image
-              src="/images/machines/AGEING-VAT-MAHINCE.png"
+            <ImageWithSkeleton
+              src="/images/machines/AGEING-VAT-MAHINCE.webp"
               alt="Ageing vat"
               fill
               sizes="(min-width: 640px) 50vw, 100vw"
@@ -56,8 +56,8 @@ export default function FactoryManufacturing() {
             is built with accuracy, consistency, and structural integrity.
           </p>
           <div className="relative aspect-[9/10] w-1/2 bg-line">
-            <Image
-              src="/images/machines/PASTEURIZER-VAN-MACHINE.png"
+            <ImageWithSkeleton
+              src="/images/machines/PASTEURIZER-VAN-MACHINE.webp"
               alt="Pasteurizer vat"
               fill
               sizes="(min-width: 640px) 25vw, 50vw"

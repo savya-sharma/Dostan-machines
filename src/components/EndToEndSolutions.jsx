@@ -1,4 +1,4 @@
-import Image from "next/image";
+import ImageWithSkeleton from "./ImageWithSkeleton";
 import { CornerDownRight } from "lucide-react";
 
 const FEATURES = [
@@ -64,7 +64,7 @@ export default function EndToEndSolutions() {
       <div className="mt-[3rem] grid gap-8 sm:grid-cols-2">
         <div>
           <div className="relative aspect-[5/3] bg-line">
-            <Image
+            <ImageWithSkeleton
               src="/images/machines/High-PRESSURE-HOMOGENIZER-MACHINE.webp"
               alt="High pressure homogenizer"
               fill
@@ -86,7 +86,7 @@ export default function EndToEndSolutions() {
         </div>
 
         <div className="relative aspect-[3/4] bg-line sm:mt-[6rem]">
-          <Image
+          <ImageWithSkeleton
             src="/images/machines/DM-Dostan.webp"
             alt="Continuous freezer"
             fill
@@ -99,7 +99,7 @@ export default function EndToEndSolutions() {
       <div className="mt-[5rem] grid grid-cols-[1.85fr_1.5fr_1fr]">
         {STRIP_IMAGES.map((item) => (
           <div key={item.name} className={`relative bg-line ${item.aspect}`}>
-            <Image
+            <ImageWithSkeleton
               src={item.image}
               alt={item.name}
               fill

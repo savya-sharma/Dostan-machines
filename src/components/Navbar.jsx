@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { handleAnchorClick } from "@/lib/scrollToHash";
 
 const NAV_LINKS = [
   { label: "Solutions", href: "/#end-to-end-solutions" },
@@ -35,6 +36,7 @@ export default function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
+                onClick={(e) => handleAnchorClick(e, link.href)}
                 className="text-sm font-medium text-ink transition-colors hover:text-accent"
               >
                 {link.label}
@@ -51,6 +53,7 @@ export default function Navbar() {
             </a>
             <a
               href="/#contact"
+              onClick={(e) => handleAnchorClick(e, "/#contact")}
               className="rounded-full bg-ink px-6 py-2.5 text-center text-sm font-bold uppercase tracking-wide text-surface transition-opacity hover:opacity-90"
             >
               Get a Quote
@@ -88,7 +91,10 @@ export default function Navbar() {
                 <a
                   key={link.href}
                   href={link.href}
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => {
+                    setIsOpen(false);
+                    handleAnchorClick(e, link.href);
+                  }}
                   className="self-start text-sm font-medium text-ink transition-colors hover:text-accent"
                 >
                   {link.label}
@@ -96,7 +102,10 @@ export default function Navbar() {
               ))}
               <a
                 href="/#contact"
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  setIsOpen(false);
+                  handleAnchorClick(e, "/#contact");
+                }}
                 className="rounded-full bg-ink px-6 py-2.5 text-center text-sm font-bold uppercase tracking-wide text-surface"
               >
                 Get a Quote

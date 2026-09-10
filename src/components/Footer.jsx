@@ -1,3 +1,7 @@
+"use client";
+
+import { handleAnchorClick } from "@/lib/scrollToHash";
+
 export default function Footer() {
   return (
     <footer
@@ -10,7 +14,7 @@ export default function Footer() {
           <div className="flex flex-col gap-6">
             <h2 className="text-xl font-semibold">Navigate</h2>
             <div className="flex flex-col items-start gap-2">
-              <a href="/#home" className="text-sm transition-colors hover:text-accent">Home</a>
+              <a href="/#home" onClick={(e) => handleAnchorClick(e, "/#home")} className="text-sm transition-colors hover:text-accent">Home</a>
               <a href="/about" className="text-sm transition-colors hover:text-accent">About</a>
               <a href="/products" className="text-sm transition-colors hover:text-accent">Products</a>
               <a href="/contact" className="text-sm transition-colors hover:text-accent">Contact Us</a>

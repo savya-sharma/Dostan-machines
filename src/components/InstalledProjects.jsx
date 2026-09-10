@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
+import ImageWithSkeleton from "./ImageWithSkeleton";
 import { CornerDownRight } from "lucide-react";
 
 const SMALL_CAPTIONS = [
@@ -85,7 +85,7 @@ export default function InstalledProjects() {
         {SMALL_CAPTIONS.map((item, index) => (
           <div key={index}>
             <div className="relative aspect-square bg-line">
-              <Image
+              <ImageWithSkeleton
                 src={item.image}
                 alt=""
                 fill
@@ -103,7 +103,7 @@ export default function InstalledProjects() {
       <div className="mt-[4rem] grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-6">
         <div>
           <div className="relative aspect-square bg-line">
-            <Image
+            <ImageWithSkeleton
               src={LARGE_IMAGES[0]}
               alt=""
               fill
@@ -117,7 +117,7 @@ export default function InstalledProjects() {
         </div>
         <div>
           <div className="relative aspect-square bg-line">
-            <Image
+            <ImageWithSkeleton
               src={LARGE_IMAGES[1]}
               alt=""
               fill

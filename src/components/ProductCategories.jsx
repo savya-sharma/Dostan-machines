@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { CornerDownRight } from "lucide-react";
+import ImageWithSkeleton from "./ImageWithSkeleton";
 
 const CATEGORY_ITEMS = [
   { name: "Cooling tower", image: "/images/machines/COOLING-TOWER-MACHINE.webp" },
@@ -49,7 +49,7 @@ export default function ProductCategories() {
           item ? (
             <div key={item.name}>
               <div className="relative aspect-square bg-line">
-                <Image
+                <ImageWithSkeleton
                   src={item.image}
                   alt={item.name}
                   fill
@@ -76,7 +76,7 @@ export default function ProductCategories() {
 
         <div>
           <div className="relative aspect-[7/8] bg-line">
-            <Image
+            <ImageWithSkeleton
               src="/images/machines/HARDENING-TUNNEL-MACHINE.webp"
               alt="Hardening tunnel"
               fill
@@ -95,7 +95,7 @@ export default function ProductCategories() {
               className="relative w-full bg-line"
               style={{ aspectRatio: line.aspect }}
             >
-              <Image
+              <ImageWithSkeleton
                 src={line.image}
                 alt={line.title.replace(/\n/g, " ")}
                 fill
