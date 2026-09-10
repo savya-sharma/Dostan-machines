@@ -22,7 +22,7 @@ const LINES = [
     aspect: "1899/828",
   },
   {
-    title: "CONE ICE CREAM",
+    title: "Planning commercial\ncone ice cream.",
     description:
       "From freezing to automatic cone filling and hardening, plan a production line around your required output.",
     image: "/images/machines/CONE-ICE-CREAM-MACHINE.webp",

@@ -4,21 +4,18 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 const LOGOS = [
-  { name: "Milk Bell Ice Cream", src: "/images/brands/brand-04.webp" },
-  { name: "Madhuvana Ice Cream", src: "/images/brands/brand-01.webp" },
-  { name: "Ice Empire", src: "/images/brands/brand-02.webp" },
-  { name: "Fantasy Choice", src: "/images/brands/brand-03.webp" },
-  { name: "Creamora Ice Cream", src: "/images/brands/brand-05.webp" },
-  { name: "Dhenuka Ice Cream", src: "/images/brands/brand-06.webp" },
-  { name: "Freeze Brothers", src: "/images/brands/brand-07.webp" },
-  { name: "Frost Magic Ice Cream", src: "/images/brands/brand-08.webp" },
-  { name: "Guppeee", src: "/images/brands/brand-09.webp" },
-  { name: "Heaven's Cold Ice Cream", src: "/images/brands/brand-10.webp" },
-  { name: "Madhuvan Ice Cream", src: "/images/brands/brand-11.webp" },
-  { name: "Mewar Treats", src: "/images/brands/brand-12.webp" },
-  { name: "Puresh Daily", src: "/images/brands/brand-13.webp" },
-  { name: "SnowFlakes Ice Cream", src: "/images/brands/brand-14.webp" },
-  { name: "MilkoBites Ice Cream", src: "/images/brands/brand-15-milkobites.webp" },
+  { name: "Madhuvan Ice Cream", src: "/images/brands/brand_01.webp" },
+  { name: "SnowFlakes Ice Cream", src: "/images/brands/brand_02.webp" },
+  { name: "Fantasy Choice", src: "/images/brands/brand_03.webp" },
+  { name: "MilkoBites Ice Cream", src: "/images/brands/brand_04.webp" },
+  { name: "Creamora Ice Cream", src: "/images/brands/brand_05.webp" },
+  { name: "Dhenuka Ice Cream", src: "/images/brands/brand_06.webp", scale: 1.25 },
+  { name: "Freeze Brothers", src: "/images/brands/brand_07.webp" },
+  { name: "Frost Magic Ice Cream", src: "/images/brands/brand_08.webp" },
+  { name: "Guppeee", src: "/images/brands/brand_09.webp" },
+  { name: "Heaven's Cold Ice Cream", src: "/images/brands/brand_10.webp" },
+  { name: "Mewar Treats", src: "/images/brands/brand_11.webp" },
+  { name: "Puresh Daily", src: "/images/brands/brand_12.webp" },
 ];
 
 const FADE_MASK =
@@ -106,7 +103,8 @@ export default function Brands() {
                   alt={brand.name}
                   width={180}
                   height={130}
-                  className="h-auto w-full max-w-[160px] object-contain"
+                  className="h-auto w-full object-contain"
+                  style={{ maxWidth: `${160 * (brand.scale ?? 1)}px` }}
                 />
               </div>
             ) : (
