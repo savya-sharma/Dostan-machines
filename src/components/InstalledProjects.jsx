@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ImageWithSkeleton from "./ImageWithSkeleton";
 import { CornerDownRight } from "lucide-react";
 
@@ -39,6 +39,11 @@ const VIDEOS = [
 
 export default function InstalledProjects() {
   const videoRefs = useRef([]);
+  // Chrome fetches the entire file for these even with preload="metadata"
+  // once a <video> has a src, regardless of scroll position — so the src
+  // itself is only attached once a video is about to enter the viewport,
+  // instead of relying on preload to hold it back.
+  const [loadedVideos, setLoadedVideos] = useState(() => VIDEOS.map(() => false));
 
   useEffect(() => {
     const videos = videoRefs.current.filter(Boolean);
@@ -48,8 +53,16 @@ export default function InstalledProjects() {
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
+          const index = Number(video.dataset.index);
           if (entry.isIntersecting) {
-            video.play().catch(() => {});
+            // Attaching src (below) is async via React state — actually
+            // playing happens once that commits, in the effect below.
+            setLoadedVideos((prev) => {
+              if (prev[index]) return prev;
+              const next = [...prev];
+              next[index] = true;
+              return next;
+            });
           } else {
             video.pause();
           }
@@ -61,6 +74,19 @@ export default function InstalledProjects() {
     videos.forEach((video) => observer.observe(video));
     return () => observer.disconnect();
   }, []);
+
+  // Plays newly-loaded videos once their src has actually committed to the
+  // DOM (can't call .play() in the observer above — at that point the src
+  // from the state update hasn't rendered yet).
+  useEffect(() => {
+    loadedVideos.forEach((loaded, index) => {
+      if (!loaded) return;
+      const video = videoRefs.current[index];
+      if (video && video.paused) {
+        video.play().catch(() => {});
+      }
+    });
+  }, [loadedVideos]);
 
   return (
     <div id="installed-projects" className="px-[2rem] py-[6rem]">
@@ -145,12 +171,13 @@ export default function InstalledProjects() {
           <video
             key={src}
             ref={(el) => (videoRefs.current[index] = el)}
+            data-index={index}
             className="aspect-square w-full bg-gray-300 object-cover"
-            src={src}
+            src={loadedVideos[index] ? src : undefined}
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="none"
           />
         ))}
       </div>

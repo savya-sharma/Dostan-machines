@@ -5,6 +5,15 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const FRAME_COUNT = 795;
+// Enough frames to cover the first stretch of scroll before the background
+// loader catches up — the animation becomes interactive after this batch
+// instead of waiting for all 795 frames (~67MB) to land first.
+const INITIAL_FRAMES = 60;
+// Frames in flight at once, both for the initial batch and the background
+// stream — keeps the browser's connection pool free for other page assets
+// instead of firing all 795 requests simultaneously.
+const CONCURRENCY = 6;
+
 const framePath = (index) =>
   `/compressed_images/frame_${String(index + 1).padStart(4, "0")}.webp`;
 
@@ -18,10 +27,11 @@ export default function Hero() {
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    const images = [];
+    const images = new Array(FRAME_COUNT);
     const frameState = { currentIndex: 0 };
     let cancelled = false;
     let gsapCtx;
+    let scrollAnimationStarted = false;
 
     function setCanvasSize() {
       canvas.width = window.innerWidth;
@@ -45,6 +55,8 @@ export default function Hero() {
     }
 
     function startScrollAnimation() {
+      if (scrollAnimationStarted) return;
+      scrollAnimationStarted = true;
       gsapCtx = gsap.context(() => {
         gsap.to(frameState, {
           currentIndex: images.length - 1,
@@ -65,21 +77,80 @@ export default function Hero() {
       });
     }
 
-    let settledCount = 0;
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      img.src = framePath(i);
-      const onSettle = () => {
-        settledCount++;
-        if (settledCount === FRAME_COUNT && !cancelled) {
-          drawFrame(0);
-          startScrollAnimation();
+    function loadFrame(index, onSettled) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        const onSettle = () => {
+          onSettled?.(index);
+          resolve();
+        };
+        img.onload = onSettle;
+        img.onerror = onSettle;
+        // Frame 0 is the LCP-critical asset — hint the browser to fetch it
+        // ahead of the rest of the initial batch.
+        if (index === 0 && "fetchPriority" in img) {
+          img.fetchPriority = "high";
         }
-      };
-      img.onload = onSettle;
-      img.onerror = onSettle;
-      images.push(img);
+        img.src = framePath(index);
+        images[index] = img;
+      });
     }
+
+    // Loads [start, end) with at most `concurrency` requests in flight.
+    async function loadRange(start, end, concurrency, onSettled) {
+      let cursor = start;
+      async function worker() {
+        while (cursor < end && !cancelled) {
+          const i = cursor++;
+          await loadFrame(i, onSettled);
+        }
+      }
+      await Promise.all(
+        Array.from({ length: Math.min(concurrency, Math.max(end - start, 0)) }, worker)
+      );
+    }
+
+    // Streams the remaining frames in small batches during idle time so
+    // scrolling, hydration, and other page work stay uninterrupted.
+    function loadRestInBackground() {
+      let cursor = INITIAL_FRAMES;
+
+      function scheduleNext() {
+        if (cancelled || cursor >= FRAME_COUNT) return;
+        const run = () => {
+          if (cancelled) return;
+          const end = Math.min(cursor + CONCURRENCY, FRAME_COUNT);
+          const batchStart = cursor;
+          cursor = end;
+          loadRange(batchStart, end, CONCURRENCY).then(scheduleNext);
+        };
+        if (typeof window.requestIdleCallback === "function") {
+          window.requestIdleCallback(run, { timeout: 1000 });
+        } else {
+          setTimeout(run, 150);
+        }
+      }
+
+      scheduleNext();
+    }
+
+    // Frame 0 draws (and the scroll animation goes live) the moment it
+    // individually finishes, rather than waiting on the whole initial
+    // batch — on a slow connection that difference is the gap between a
+    // blank hero for many seconds and an immediately visible, scrubbable one.
+    // Frames scrolled to before they've loaded simply hold the last drawn
+    // frame (see the guard in drawFrame) until they arrive.
+    function handleInitialFrameSettled(index) {
+      if (index === 0 && !cancelled) {
+        drawFrame(0);
+        startScrollAnimation();
+      }
+    }
+
+    loadRange(0, INITIAL_FRAMES, CONCURRENCY, handleInitialFrameSettled).then(() => {
+      if (cancelled) return;
+      loadRestInBackground();
+    });
 
     function onResize() {
       drawFrame(Math.floor(frameState.currentIndex));

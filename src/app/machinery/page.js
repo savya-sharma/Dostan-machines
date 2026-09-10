@@ -89,15 +89,14 @@ export default function MachineryPage() {
       <div className="mt-[4rem] flex flex-col gap-[5rem]">
         {SECTIONS.map((images, index) => {
           const cols = images.length;
+          const gridColsClass =
+            cols === 3
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              : cols === 2
+              ? "grid-cols-1 sm:grid-cols-2"
+              : "grid-cols-1";
           return (
-            <div
-              key={index}
-              className="grid grid-cols-1 gap-3"
-              style={{
-                gridTemplateColumns:
-                  cols > 1 ? `repeat(${cols}, minmax(0, 1fr))` : undefined,
-              }}
-            >
+            <div key={index} className={`grid gap-3 ${gridColsClass}`}>
               {images.map((machine) => (
                 <div key={machine.src}>
                   <div className="relative aspect-[3/2] bg-line">
@@ -109,7 +108,7 @@ export default function MachineryPage() {
                         cols === 1
                           ? "100vw"
                           : cols === 3
-                          ? "(min-width: 640px) 33vw, 100vw"
+                          ? "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                           : "(min-width: 640px) 50vw, 100vw"
                       }
                       className="object-cover"

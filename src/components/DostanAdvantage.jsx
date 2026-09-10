@@ -33,6 +33,28 @@ export default function DostanAdvantage() {
     return () => ctx.revert();
   }, []);
 
+  // Video only starts downloading/playing once it's about to enter the
+  // viewport, instead of autoplaying (and fetching) as soon as the page
+  // loads — this is the single largest asset on the homepage.
+  useEffect(() => {
+    const video = videoInnerRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { rootMargin: "200px 0px" }
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div id="dostan-advantage" className="px-[2rem] py-[6rem]">
       <div>
@@ -72,10 +94,10 @@ export default function DostanAdvantage() {
           ref={videoInnerRef}
           className="absolute inset-0 h-full w-full scale-125 object-cover"
           src="/videos/hero/dostan-video.mp4"
-          autoPlay
           loop
           muted
           playsInline
+          preload="none"
         />
       </div>
     </div>
