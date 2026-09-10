@@ -7,7 +7,7 @@ import { handleAnchorClick } from "@/lib/scrollToHash";
 
 const NAV_LINKS = [
   { label: "Solutions", href: "/#end-to-end-solutions" },
-  { label: "Categories", href: "/#product-categories" },
+  { label: "Machinery", href: "/machinery" },
   { label: "Projects", href: "/#installed-projects" },
   { label: "Installations", href: "/#factory-manufacturing" },
   { label: "About", href: "/about" },

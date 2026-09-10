@@ -118,7 +118,7 @@ export default function ProductCategories() {
       <div className="mt-[4rem] flex justify-center">
         <a
           className="flex items-center gap-[0.4rem] text-sm font-medium text-accent transition-[gap,opacity] hover:gap-[0.6rem] hover:opacity-70"
-          href="#product-categories"
+          href="/machinery"
         >
           View All Products <CornerDownRight className="h-4 w-4" />
         </a>
