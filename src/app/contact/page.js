@@ -1,3 +1,5 @@
+import ContactForm from "@/components/ContactForm";
+
 export const metadata = {
   title: "Contact Us | Dostan Machines",
 };
@@ -9,7 +11,7 @@ export default function ContactPage() {
         Contact Us
       </h1>
 
-      <div className="mt-[3rem] flex flex-col items-start gap-4 text-sm">
+      <div className="mt-[2rem] flex flex-col items-start gap-4 text-sm">
         <a
           href="tel:+918510027111"
           className="underline transition-colors hover:text-accent"
@@ -27,6 +29,8 @@ export default function ContactPage() {
           Buddha Nagar, Uttar Pradesh – 201306
         </span>
       </div>
+
+      <ContactForm />
     </div>
   );
 }
