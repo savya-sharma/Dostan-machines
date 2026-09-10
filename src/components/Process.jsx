@@ -106,7 +106,7 @@ export default function Process() {
             className={`py-8 border-[#DDDDDD] ${stat.className}`}
           >
             <p className="text-base sm:text-lg">{stat.label}</p>
-            <p className="mt-2 text-7xl sm:text-8xl lg:text-9xl leading-none">
+            <p className="mt-2 text-7xl sm:text-8xl lg:text-9xl leading-none text-accent">
               <AnimatedNumber
                 target={stat.target}
                 suffix={stat.suffix}

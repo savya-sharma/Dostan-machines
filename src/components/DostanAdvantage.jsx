@@ -42,20 +42,20 @@ export default function DostanAdvantage() {
         </p>
         <div className="mt-[1.5rem] flex max-w-2xl justify-end">
           <a
-            className="flex items-center gap-[0.4rem] text-sm font-medium transition-colors hover:text-accent"
+            className="flex items-center gap-[0.4rem] text-sm font-medium text-accent transition-[gap,opacity] hover:gap-[0.6rem] hover:opacity-70"
             href="#"
           >
-            About Dostan <CornerDownRight className="h-4 w-4" />
+            About Dostan Machines <CornerDownRight className="h-4 w-4" />
           </a>
         </div>
       </div>
 
       <div className="mt-[5rem] flex flex-col items-start gap-8 sm:flex-row sm:items-center sm:justify-between">
         <Image
-          src="/logos/logo-02.svg"
+          src="/logos/logo-01.svg"
           alt="Dostan Machines logo mark"
           width={80}
-          height={69}
+          height={77}
           className="h-24 w-auto shrink-0 sm:h-32 lg:h-[12rem]"
         />
 

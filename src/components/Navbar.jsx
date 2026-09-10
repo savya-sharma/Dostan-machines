@@ -22,13 +22,13 @@ export default function Navbar() {
         <nav className="flex items-center justify-between gap-6 rounded-md bg-surface px-6 py-3 shadow-lg sm:px-8">
           <Link href="/" className="flex shrink-0 items-center gap-2">
             <Image
-              src="/logos/logo-02.svg"
+              src="/logos/logo-01.svg"
               alt="Dostan Machines"
               width={28}
-              height={24}
+              height={27}
               className="h-6 w-auto"
             />
-            <span className="text-lg font-semibold text-ink">Dostan</span>
+            <span className="text-lg font-semibold text-ink">Dostan Machines</span>
           </Link>
 
           <div className="hidden items-center gap-8 lg:flex">

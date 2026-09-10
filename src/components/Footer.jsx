@@ -1,5 +1,6 @@
 "use client";
 
+import { Mail, Phone } from "lucide-react";
 import { handleAnchorClick } from "@/lib/scrollToHash";
 
 export default function Footer() {
@@ -45,7 +46,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col items-center gap-2 text-center text-sm font-semibold">
-          DOSTAN
+          DOSTAN MACHINES
           <p className="max-w-xs font-normal">
             DOSTAN engineers reliable machinery and complete production
             solutions—built for precision and performance.
@@ -57,14 +58,16 @@ export default function Footer() {
           <div className="flex flex-col items-start gap-4 text-sm">
             <a
               href="tel:+918510027111"
-              className="underline transition-colors hover:text-accent"
+              className="flex items-center gap-2 underline transition-colors hover:text-accent"
             >
+              <Phone className="h-4 w-4 shrink-0" />
               +91 8510027111 | +91 9266767144
             </a>
             <a
               href="mailto:dostanmachines@gmail.com"
-              className="transition-colors hover:text-accent"
+              className="flex items-center gap-2 transition-colors hover:text-accent"
             >
+              <Mail className="h-4 w-4 shrink-0" />
               dostanmachines@gmail.com
             </a>
             <span className="max-w-xs underline">

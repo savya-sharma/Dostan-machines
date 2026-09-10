@@ -125,7 +125,7 @@ export default function EndToEndSolutions() {
 
       <div className="mt-[3rem] flex justify-center">
         <a
-          className="flex items-center gap-[0.4rem] text-sm font-medium transition-colors hover:text-accent"
+          className="flex items-center gap-[0.4rem] text-sm font-medium text-accent transition-[gap,opacity] hover:gap-[0.6rem] hover:opacity-70"
           href="#end-to-end-solutions"
         >
           View All Products <CornerDownRight className="h-4 w-4" />
