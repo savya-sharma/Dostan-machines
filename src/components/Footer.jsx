@@ -17,7 +17,7 @@ export default function Footer() {
             <div className="flex flex-col items-start gap-2">
               <a href="/#home" onClick={(e) => handleAnchorClick(e, "/#home")} className="text-sm transition-colors hover:text-accent">Home</a>
               <a href="/about" className="text-sm transition-colors hover:text-accent">About</a>
-              <a href="/products" className="text-sm transition-colors hover:text-accent">Products</a>
+              <a href="/machinery" className="text-sm transition-colors hover:text-accent">Products</a>
               <a href="/contact" className="text-sm transition-colors hover:text-accent">Contact Us</a>
             </div>
             <div className="flex flex-col items-start gap-2">

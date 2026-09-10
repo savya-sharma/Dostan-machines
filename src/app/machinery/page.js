@@ -22,7 +22,7 @@ const CAPTIONS = [
   "Hardening Tunnel",
   "Cold Room & Blast Room",
   "Refrigerated Van & TDU",
-  "SS Mold of Kulfi & Chocobar",
+  "SS Mold of Kulfi & Chocobar",  
   "Flavour Tank",
   "Fow/Truck/E-Rickshaw",
   "Glycol Fow Freezer",
