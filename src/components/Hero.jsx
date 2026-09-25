@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { preload } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import HeroLoader from "./HeroLoader";
 
-const FRAME_COUNT = 795;
+// The sequence starts at frame_0021.webp (frames 1-20 are skipped) and still
+// runs through the final frame_0795.webp — every index below is relative to
+// this first frame, so nothing else about loading/playback changes.
+const FIRST_FRAME = 21;
+const LAST_FRAME = 795;
+const FRAME_COUNT = LAST_FRAME - FIRST_FRAME + 1;
 // Enough frames to cover the first stretch of scroll before the background
 // loader catches up — the animation becomes interactive after this batch
 // instead of waiting for all 795 frames (~67MB) to land first.
@@ -13,14 +20,38 @@ const INITIAL_FRAMES = 60;
 // stream — keeps the browser's connection pool free for other page assets
 // instead of firing all 795 requests simultaneously.
 const CONCURRENCY = 6;
+// The loader's counter only ever displays these milestones (kept in sync
+// with HeroLoader's own copy of the same list) — each one is reached only
+// once its corresponding real frame has actually settled, never sooner.
+const CRITICAL_MILESTONES = [45, 65, 88, 100];
+// The loader only waits for this many frames (a small slice of the initial
+// batch, not the full 60 — those keep loading in the background regardless)
+// before revealing the Hero: one real frame per milestone above.
+const CRITICAL_FRAMES = CRITICAL_MILESTONES.length;
+// Backstop so a stalled or failed critical frame can never leave the loader
+// stuck on screen forever.
+const CRITICAL_TIMEOUT_MS = 10000;
 
 const framePath = (index) =>
-  `/compressed_images/frame_${String(index + 1).padStart(4, "0")}.webp`;
+  `/compressed_images/frame_${String(index + FIRST_FRAME).padStart(4, "0")}.webp`;
 
 export default function Hero() {
   const canvasRef = useRef(null);
   const parentRef = useRef(null);
   const pinRef = useRef(null);
+  const [criticalProgress, setCriticalProgress] = useState(0);
+  const [criticalReady, setCriticalReady] = useState(false);
+  const [showLoader, setShowLoader] = useState(true);
+
+  // Emits a <link rel="preload" as="image" fetchpriority="high"> into the
+  // document <head> during the server render itself, so the browser's HTML
+  // preload scanner can start fetching the LCP frame immediately — in
+  // parallel with the JS bundle download — instead of waiting for
+  // hydration to run the effect below and issue a `new Image()` request.
+  // On a throttled connection that's the difference between frame 0
+  // starting to download at ~150ms vs. only after the ~2s it takes the
+  // page's JS to finish loading and execute.
+  preload(framePath(0), { as: "image", fetchPriority: "high" });
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -32,6 +63,18 @@ export default function Hero() {
     let cancelled = false;
     let gsapCtx;
     let scrollAnimationStarted = false;
+    let criticalSettledCount = 0;
+    let criticalDone = false;
+
+    function markCriticalDone() {
+      if (criticalDone || cancelled) return;
+      criticalDone = true;
+      setCriticalProgress(100);
+      setCriticalReady(true);
+    }
+
+    // Never leaves the loader stuck if a critical frame stalls or fails.
+    const criticalTimeout = setTimeout(markCriticalDone, CRITICAL_TIMEOUT_MS);
 
     function setCanvasSize() {
       canvas.width = window.innerWidth;
@@ -141,9 +184,23 @@ export default function Hero() {
     // Frames scrolled to before they've loaded simply hold the last drawn
     // frame (see the guard in drawFrame) until they arrive.
     function handleInitialFrameSettled(index) {
-      if (index === 0 && !cancelled) {
+      if (cancelled) return;
+
+      if (index === 0) {
         drawFrame(0);
         startScrollAnimation();
+      }
+
+      // Errored frames still "settle" (loadFrame's onerror resolves just
+      // like onload), so a failed critical frame can't stall progress —
+      // it just counts and moves on.
+      if (index < CRITICAL_FRAMES && !criticalDone) {
+        criticalSettledCount += 1;
+        setCriticalProgress(CRITICAL_MILESTONES[criticalSettledCount - 1]);
+        if (criticalSettledCount >= CRITICAL_FRAMES) {
+          clearTimeout(criticalTimeout);
+          markCriticalDone();
+        }
       }
     }
 
@@ -159,9 +216,14 @@ export default function Hero() {
 
     return () => {
       cancelled = true;
+      clearTimeout(criticalTimeout);
       window.removeEventListener("resize", onResize);
       gsapCtx?.revert();
     };
+  }, []);
+
+  const handleLoaderExitComplete = useCallback(() => {
+    setShowLoader(false);
   }, []);
 
   return (
@@ -171,6 +233,14 @@ export default function Hero() {
           <canvas ref={canvasRef} className="h-screen w-full" />
         </div>
       </div>
+
+      {showLoader && (
+        <HeroLoader
+          progress={criticalProgress}
+          ready={criticalReady}
+          onExitComplete={handleLoaderExitComplete}
+        />
+      )}
     </section>
   );
 }

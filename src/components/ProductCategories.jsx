@@ -1,127 +1,79 @@
-import { CornerDownRight } from "lucide-react";
+import Link from "next/link";
 import ImageWithSkeleton from "./ImageWithSkeleton";
+import { CornerDownRight } from "lucide-react";
+import { findMachineByImage } from "@/data/machines";
 
-const CATEGORY_ITEMS = [
-  { name: "Cooling tower", image: "/images/machines/COOLING-TOWER-MACHINE.webp" },
-  { name: "Plate Heat Exchanger", image: "/images/machines/PLATE-HEAT-EXCHANGER-MACHINE.webp" },
-  null,
-  { name: "Pasteurizer Tank", image: "/images/machines/PASTEURIZER-TANK-MACHINE.webp" },
+// The first six gallery photos, in file order. Each card's name, purpose,
+// and link are looked up from the catalog by this image (never
+// hardcoded), so the label and the single-product page it opens always
+// describe the same machine as the photo.
+const CATEGORY_IMAGES = [
+  "/images/machines/GALLERY-01.webp",
+  "/images/machines/GALLERY-02.webp",
+  "/images/machines/GALLERY-03.webp",
+  "/images/machines/GALLERY-04.webp",
+  "/images/machines/GALLERY-05.webp",
+  "/images/machines/GALLERY-06.webp",
 ];
 
-const DESCRIPTION_PARAGRAPHS = [
-  "DOSTAN offers a comprehensive range of processing and production machinery engineered for demanding industrial environments. Our equipment supports efficient, hygienic, and consistent production across dairy, ice cream, food, beverage, and related applications. From individual processing units to integrated production systems, every machine is developed with precision and reliability in mind.",
-  "Our range includes pasteurizers, homogenizers, continuous freezers, cooling systems, pumps, filtration equipment, and specialized machinery. Each solution can be configured around specific production capacities, process requirements, and facility layouts. Built with robust construction and practical engineering, DOSTAN machines deliver reliable performance for continuous production.",
-];
+function CategoryCard({ image }) {
+  // The card's name, purpose, and link always come from whichever machine
+  // actually owns this photo in the catalog — never hardcoded — so this
+  // card and the page its View button opens can never disagree about
+  // identity.
+  const matchedMachine = findMachineByImage(image);
+  const Wrapper = matchedMachine ? Link : "div";
+  const wrapperProps = matchedMachine
+    ? { href: `/machinery/${matchedMachine.slug}` }
+    : {};
+  const name = matchedMachine?.name ?? "Dostan Machine";
 
-const LINES = [
-  {
-    title: "Planning commercial\ncup production.",
-    description:
-      "Explore machinery for mix preparation, continuous freezing, automatic filling, hardening and cold storage.",
-    image: "/images/machines/CUP-ICE-CREAM-MACHINE.webp",
-    aspect: "1899/828",
-  },
-  {
-    title: "Planning commercial\ncone ice cream.",
-    description:
-      "From freezing to automatic cone filling and hardening, plan a production line around your required output.",
-    image: "/images/machines/CONE-ICE-CREAM-MACHINE.webp",
-    aspect: "1774/887",
-  },
-];
+  return (
+    <Wrapper {...wrapperProps}>
+      <div className="group relative aspect-[3/2] bg-line">
+        <ImageWithSkeleton
+          src={image}
+          alt={name}
+          fill
+          sizes="(min-width: 640px) 50vw, 100vw"
+          className="object-contain"
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-ink/50 opacity-0 backdrop-blur-sm transition-opacity duration-300 ease-out group-hover:opacity-100">
+          <span className="text-sm font-bold uppercase tracking-wide text-surface">
+            View
+          </span>
+        </div>
+      </div>
+      <div className="mt-3 flex items-start justify-between gap-6">
+        <p className="shrink-0 text-xs">{name}</p>
+        <p className="max-w-[70%] text-justify text-xs opacity-70">
+          {matchedMachine?.purpose}
+        </p>
+      </div>
+    </Wrapper>
+  );
+}
 
 export default function ProductCategories() {
   return (
     <div id="product-categories" className="px-[2rem] py-[6rem]">
-      <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
-        <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
-          Product Categories
-        </h1>
-        <p className="text-lg text-right leading-relaxed opacity-70 sm:max-w-md">
-          Explore DOSTAN&apos;s range of processing and production machinery,
-          engineered for efficient, hygienic, and reliable performance
-          across diverse food manufacturing applications.
-        </p>
-      </div>
+      <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
+        Product Categories
+      </h1>
 
-      <div className="mt-[3rem] grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {CATEGORY_ITEMS.map((item, index) =>
-          item ? (
-            <div key={item.name}>
-              <div className="relative aspect-square bg-line">
-                <ImageWithSkeleton
-                  src={item.image}
-                  alt={item.name}
-                  fill
-                  sizes="(min-width: 640px) 25vw, 50vw"
-                  className="object-cover"
-                />
-              </div>
-              <p className="mt-2 text-xs opacity-70">{item.name}</p>
-            </div>
-          ) : (
-            <div key={`empty-${index}`} />
-          )
-        )}
-      </div>
-
-      <div className="mt-[4rem] grid gap-8 sm:grid-cols-2">
-        <div className="flex flex-col gap-6">
-          {DESCRIPTION_PARAGRAPHS.map((paragraph) => (
-            <p key={paragraph} className="text-sm text-justify opacity-70">
-              {paragraph}
-            </p>
-          ))}
-        </div>
-
-        <div>
-          <div className="relative aspect-[7/8] bg-line">
-            <ImageWithSkeleton
-              src="/images/machines/HARDENING-TUNNEL-MACHINE.webp"
-              alt="Hardening tunnel"
-              fill
-              sizes="(min-width: 640px) 50vw, 100vw"
-              className="object-cover"
-            />
-          </div>
-          <p className="mt-2 text-xs opacity-70">Hardening tunnel</p>
-        </div>
-      </div>
-
-      <div className="mt-[4rem] flex flex-col gap-[4rem]">
-        {LINES.map((line) => (
-          <div key={line.title} className="grid items-center gap-8 sm:grid-cols-2">
-            <div
-              className="relative w-full bg-line"
-              style={{ aspectRatio: line.aspect }}
-            >
-              <ImageWithSkeleton
-                src={line.image}
-                alt={line.title.replace(/\n/g, " ")}
-                fill
-                sizes="(min-width: 640px) 50vw, 100vw"
-                className="object-contain"
-              />
-            </div>
-            <div className="flex flex-col justify-center">
-              <h2 className="whitespace-pre-line text-xl leading-tight sm:text-2xl">
-                {line.title}
-              </h2>
-              <p className="mt-[1rem] text-sm opacity-70">
-                {line.description}
-              </p>
-            </div>
-          </div>
+      <div className="mt-[3rem] grid grid-cols-1 gap-x-4 gap-y-[3rem] sm:grid-cols-2">
+        {CATEGORY_IMAGES.map((image) => (
+          <CategoryCard key={image} image={image} />
         ))}
       </div>
 
       <div className="mt-[4rem] flex justify-center">
-        <a
+        <Link
           className="flex items-center gap-[0.4rem] text-sm font-medium text-accent transition-[gap,opacity] hover:gap-[0.6rem] hover:opacity-70"
           href="/machinery"
         >
-          View All Products <CornerDownRight className="h-4 w-4" />
-        </a>
+          View All Machines <CornerDownRight className="h-4 w-4" />
+        </Link>
       </div>
     </div>
   );

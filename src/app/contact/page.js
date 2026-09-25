@@ -6,7 +6,7 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="px-[2rem] py-[6rem]">
+    <div className="px-[2rem] pt-[6.5rem] pb-[6rem]">
       <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
         Contact Us
       </h1>

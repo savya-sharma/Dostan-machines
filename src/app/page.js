@@ -9,6 +9,7 @@ import Testimonials from "@/components/Testimonials";
 import FactoryManufacturing from "@/components/FactoryManufacturing";
 import KnowledgeCenter from "@/components/KnowledgeCenter";
 import FAQ from "@/components/FAQ";
+import ContactCTA from "@/components/ContactCTA";
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
       <FactoryManufacturing />
       <KnowledgeCenter />
       <FAQ />
+      <ContactCTA />
     </>
   );
 }

@@ -19,7 +19,7 @@ const LOGOS = [
 ];
 
 const FADE_MASK =
-  "linear-gradient(to right, transparent, black 12%, black 88%, transparent)";
+  "linear-gradient(to right, transparent, black 12%, black 88%,  transparent)";
 
 // Fewer, larger columns on small screens so logos read as a column
 // layout on phones instead of a cramped 6-up grid.
@@ -71,7 +71,7 @@ export default function Brands() {
           className="pointer-events-none absolute inset-0 grid"
           style={{
             gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-            gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+            gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`, 
             maskImage: FADE_MASK,
             WebkitMaskImage: FADE_MASK,
           }}

@@ -79,7 +79,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mt-[6rem] -mx-[2rem] flex h-[8vw] items-start justify-center overflow-hidden px-4">
+      <div className="mt-[6rem] -mx-[2rem] flex items-center justify-center overflow-hidden px-4 pb-[4vw] sm:pb-[2vw]">
         <h2 className="whitespace-nowrap text-[9vw] font-bold leading-none tracking-tight">
           DOSTAN MACHINES
         </h2>

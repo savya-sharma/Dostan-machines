@@ -60,7 +60,7 @@ export default function DostanAdvantage() {
       <div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl leading-tight">Why Dostan Machines</h1>
         <p className="mt-[2rem] max-w-2xl text-justify text-[1.5rem] leading-[2rem] opacity-70 tracking-tight">
-          We bring strategy, design, and technology together to create digital experiences that feel distinctive and purposeful. Every project is shaped around clarity, character, and a strong visual point of view. and give brands a presence that stays memorable long after the first interaction.
+          We engineer machinery and processing solutions for ice cream, dairy, and food manufacturing — from individual equipment to complete production systems, supported by precision engineering, advanced manufacturing, seamless installation, and dedicated after-sales support.
         </p>
         <div className="mt-[1.5rem] flex max-w-2xl justify-end">
           <a
@@ -82,7 +82,7 @@ export default function DostanAdvantage() {
         />
 
         <p className="max-w-sm text-justify text-sm leading-relaxed opacity-70 tracking-tight">
-          We create identities and digital experiences that give brands a distinctive voice in crowded spaces. Through thoughtful design and purposeful technology, we turn complex ideas into something simple, engaging, and memorable.
+          Designed around your production requirements, our solutions bring together machinery, engineering, execution, and technical support — enabling a seamless transition from initial requirements to dependable operations.
         </p>
       </div>
 

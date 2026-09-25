@@ -1,77 +1,66 @@
-import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion"
-import { cn } from "cn"
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+"use client";
 
-function Accordion({
-  className,
-  ...props
-}) {
+import * as React from "react";
+import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
+import { cn } from "cn";
+
+function Accordion({ className, ...props }) {
   return (
     <AccordionPrimitive.Root
       data-slot="accordion"
       className={cn("flex w-full flex-col", className)}
       {...props}
     />
-  )
+  );
 }
 
-function AccordionItem({
-  className,
-  ...props
-}) {
+function AccordionItem({ className, ...props }) {
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn("not-last:border-b", className)}
+      className={cn("border-b border-line/20 last:border-b-0", className)}
       {...props}
     />
-  )
+  );
 }
 
-function AccordionTrigger({
-  className,
-  children,
-  ...props
-}) {
+function AccordionTrigger({ className, children, ...props }) {
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-lg border border-transparent py-2.5 text-left text-sm font-medium transition-colors outline-none hover:underline focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:after:border-ring aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-expanded:text-accent **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4",
+          "group/accordion-trigger flex w-full cursor-pointer items-center justify-between gap-6 py-5 text-left outline-none transition-colors duration-200 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent aria-disabled:pointer-events-none aria-disabled:opacity-50",
           className
         )}
         {...props}
       >
         {children}
-        <ChevronDownIcon data-slot="accordion-trigger-icon" className="pointer-events-none shrink-0 group-aria-expanded/accordion-trigger:hidden" />
-        <ChevronUpIcon data-slot="accordion-trigger-icon" className="pointer-events-none hidden shrink-0 group-aria-expanded/accordion-trigger:inline" />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
-  )
+  );
 }
 
-function AccordionContent({
-  className,
-  children,
-  ...props
-}) {
+// The height/mount lifecycle stays on Base UI's own measured-height CSS
+// transition (`--accordion-panel-height`, `data-starting/ending-style`) —
+// that's what lets it correctly defer hiding the panel from assistive tech
+// until the transition actually finishes, rather than clipping it
+// instantly. GSAP (in FAQ.jsx) layers the opacity/y reveal and icon
+// rotation on top of this, rather than replacing it.
+const AccordionContent = React.forwardRef(function AccordionContent(
+  { className, children, ...props },
+  ref
+) {
   return (
     <AccordionPrimitive.Panel
+      ref={ref}
       data-slot="accordion-content"
-      className="h-(--accordion-panel-height) overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0"
+      className="h-(--accordion-panel-height) overflow-hidden transition-[height] duration-[450ms] ease-[cubic-bezier(0.65,0,0.35,1)] motion-reduce:transition-none data-ending-style:h-0 data-starting-style:h-0"
       {...props}
     >
-      <div
-        className={cn(
-          "pt-0 pb-2.5 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
-          className
-        )}
-      >
-        {children}
-      </div>
+      <div className={cn("pr-10 pb-6", className)}>{children}</div>
     </AccordionPrimitive.Panel>
-  )
-}
+  );
+});
 
-export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };

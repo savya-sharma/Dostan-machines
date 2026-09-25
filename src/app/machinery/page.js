@@ -1,129 +1,68 @@
-import fs from "fs";
-import path from "path";
+import Link from "next/link";
 import ImageWithSkeleton from "@/components/ImageWithSkeleton";
+import { MACHINES } from "@/data/machines";
 
 export const metadata = {
   title: "Machinery | Dostan Machines",
 };
 
-// Captions given for the current 21 images, in sequence. "leave" means no
-// caption for that slot.
-const CAPTIONS = [
-  "High Pressure Homogenizer",
-  "leave",
-  "Ageing Tank",
-  "Cooling Tower",
-  "Ice Candy Making Machine",
-  "Servo HMI Pouch Packing Machine",
-  "leave",
-  "Cup & Cone Filling",
-  "Fruit Feeder",
-  "Deep Freezer Type Hardener",
-  "Hardening Tunnel",
-  "Cold Room & Blast Room",
-  "Refrigerated Van & TDU",
-  "SS Mold of Kulfi & Chocobar",  
-  "Flavour Tank",
-  "Fow/Truck/E-Rickshaw",
-  "Glycol Fow Freezer",
-  "Plate Heat Exchanger",
-  "Milk Pump & Filter",
-  "Chocolate & Defrost Tank",
-  "Continuous Freezer",
-];
-
-function getMachineImages() {
-  const dir = path.join(process.cwd(), "public/images/machines");
-  const files = fs
-    .readdirSync(dir)
-    .filter((file) => /^DOSTAN-MACHINE-\d+\.webp$/i.test(file));
-
-  files.sort((a, b) => {
-    const numA = parseInt(a.match(/\d+/)[0], 10);
-    const numB = parseInt(b.match(/\d+/)[0], 10);
-    return numA - numB || a.localeCompare(b);
-  });
-
-  return files.map((file, index) => {
-    const caption = CAPTIONS[index];
-    const name =
-      caption && caption.toLowerCase() !== "leave"
-        ? caption
-        : `Dostan Machine ${index + 1}`;
-    return {
-      name,
-      caption: caption && caption.toLowerCase() !== "leave" ? caption : null,
-      src: `/images/machines/${file}`,
-    };
-  });
+// Renders every machine in the centralized catalog, in GALLERY-NN.webp
+// image order — the grid is a direct view of MACHINES rather than a
+// separately maintained caption list, so a card's name/purpose/link can
+// never drift out of sync with its own detail page again.
+function galleryNumber(machine) {
+  return parseInt(machine.image.match(/GALLERY-(\d+)/)[1], 10);
 }
 
-// Alternates rows of 3 and 2 images, in sequence, across however many
-// images are currently in public/images/machines/ (DOSTAN-MACHINE-*.webp).
-function buildSections(images) {
-  const sections = [];
-  let cursor = 0;
-  let wantsTriple = true;
-  while (cursor < images.length) {
-    const size = Math.min(wantsTriple ? 3 : 2, images.length - cursor);
-    sections.push(images.slice(cursor, cursor + size));
-    cursor += size;
-    wantsTriple = !wantsTriple;
-  }
-  return sections;
-}
+const MACHINE_IMAGES = [...MACHINES].sort(
+  (a, b) => galleryNumber(a) - galleryNumber(b)
+);
 
-const MACHINE_IMAGES = getMachineImages();
-const SECTIONS = buildSections(MACHINE_IMAGES);
+function MachineCard({ machine }) {
+  return (
+    <Link href={`/machinery/${machine.slug}`}>
+      <div className="group relative aspect-[3/2] bg-line">
+        <ImageWithSkeleton
+          src={machine.image}
+          alt={machine.name}
+          fill
+          sizes="(min-width: 640px) 50vw, 100vw"
+          className="object-contain"
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-ink/50 opacity-0 backdrop-blur-sm transition-opacity duration-300 ease-out group-hover:opacity-100">
+          <span className="text-sm font-bold uppercase tracking-wide text-surface">
+            View
+          </span>
+        </div>
+      </div>
+      <div className="mt-3 flex items-start justify-between gap-6">
+        <p className="shrink-0 text-xs">{machine.name}</p>
+        <p className="max-w-[70%] text-justify text-xs opacity-70">
+          {machine.purpose}
+        </p>
+      </div>
+    </Link>
+  );
+}
 
 export default function MachineryPage() {
   return (
-    <div className="px-[2rem] py-[6rem]">
-      <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
-        Machinery
-      </h1>
-      <p className="mt-4 text-lg opacity-70">
-        Engineered equipment for modern dairy &amp; food processing.
-      </p>
+    <div className="px-[2rem] pt-[6.5rem] pb-[6rem]">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
+          Machinery
+        </h1>
+        <p className="max-w-xs text-xs opacity-70 sm:text-right">
+          Explore DOSTAN&apos;s range of processing and production machinery,
+          engineered for efficient, hygienic, and reliable performance across
+          diverse food manufacturing applications.
+        </p>
+      </div>
 
-      <div className="mt-[4rem] flex flex-col gap-[5rem]">
-        {SECTIONS.map((images, index) => {
-          const cols = images.length;
-          const gridColsClass =
-            cols === 3
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-              : cols === 2
-              ? "grid-cols-1 sm:grid-cols-2"
-              : "grid-cols-1";
-          return (
-            <div key={index} className={`grid gap-3 ${gridColsClass}`}>
-              {images.map((machine) => (
-                <div key={machine.src}>
-                  <div className="relative aspect-[3/2] bg-line">
-                    <ImageWithSkeleton
-                      src={machine.src}
-                      alt={machine.name}
-                      fill
-                      sizes={
-                        cols === 1
-                          ? "100vw"
-                          : cols === 3
-                          ? "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                          : "(min-width: 640px) 50vw, 100vw"
-                      }
-                      className="object-cover"
-                    />
-                  </div>
-                  {machine.caption && (
-                    <p className="mt-2 text-xs opacity-70">
-                      {machine.caption}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          );
-        })}
+      <div className="mt-[4rem] grid grid-cols-1 gap-x-4 gap-y-[3rem] sm:grid-cols-2">
+        {MACHINE_IMAGES.map((machine) => (
+          <MachineCard key={machine.slug} machine={machine} />
+        ))}
       </div>
     </div>
   );

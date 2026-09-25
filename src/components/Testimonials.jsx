@@ -48,7 +48,7 @@ export default function Testimonials() {
   return (
     <div id="testimonials" className="px-[2rem] py-[6rem]">
       <div className="flex flex-col gap-8 sm:flex-row sm:items-start">
-        <div className="aspect-square w-full shrink-0 bg-gradient-to-br from-orange-300 via-pink-300 to-pink-400 p-6 sm:w-48">
+        <div className="aspect-square w-full shrink-0 bg-gradient-to-br from-[#D71920] to-[#111315] p-6 sm:w-48">
           <div className="h-full w-full border-4 border-white bg-white"></div>
         </div>
 
@@ -65,7 +65,7 @@ export default function Testimonials() {
                 type="button"
                 onClick={goPrev}
                 aria-label="Previous testimonial"
-                className="flex h-10 w-10 items-center justify-center border border-line/30 transition-colors hover:border-accent hover:text-accent"
+                className="flex h-10 w-10 items-center justify-center rounded-[0.7rem] border border-line/30 transition-colors hover:border-accent hover:text-accent"
               >
                 <ArrowLeft className="h-4 w-4" />
               </button>
@@ -73,7 +73,7 @@ export default function Testimonials() {
                 type="button"
                 onClick={goNext}
                 aria-label="Next testimonial"
-                className="flex h-10 w-10 items-center justify-center border border-line/30 transition-colors hover:border-accent hover:text-accent"
+                className="flex h-10 w-10 items-center justify-center rounded-[0.7rem] border border-line/30 transition-colors hover:border-accent hover:text-accent"
               >
                 <ArrowRight className="h-4 w-4" />
               </button>

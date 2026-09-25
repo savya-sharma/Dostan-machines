@@ -32,17 +32,17 @@ const FEATURES = [
 const STRIP_IMAGES = [
   {
     name: "Pasteurizer Tank",
-    image: "/images/machines/PASTEURIZER-TANK-MACHINE.webp",
+    image: "/images/machines/GALLERY-23.webp",
     aspect: "aspect-[508/510]",
   },
   {
     name: "Cooling tower",
-    image: "/images/machines/COOLING-TOWER-MACHINE.webp",
+    image: "/images/machines/GALLERY-04.webp",
     aspect: "aspect-[415/510]",
   },
   {
     name: "Plate Heat Exchanger",
-    image: "/images/machines/PLATE-HEAT-EXCHANGER-MACHINE.webp",
+    image: "/images/machines/GALLERY-18.webp",
     aspect: "aspect-[277/510]",
   },
 ];
@@ -54,7 +54,7 @@ export default function EndToEndSolutions() {
         <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
           End To End Solution
         </h1>
-        <p className="text-lg text-right leading-relaxed opacity-70 sm:max-w-md">
+        <p className="text-lg text-right leading-tight opacity-70 sm:max-w-md">
           From individual machines to complete processing systems, DOSTAN
           delivers engineered solutions designed around your production
           requirements.
@@ -65,7 +65,7 @@ export default function EndToEndSolutions() {
         <div>
           <div className="relative aspect-[5/3] bg-line">
             <ImageWithSkeleton
-              src="/images/machines/High-PRESSURE-HOMOGENIZER-MACHINE.webp"
+              src="/images/machines/GALLERY-01.webp"
               alt="High pressure homogenizer"
               fill
               sizes="(min-width: 640px) 50vw, 100vw"
@@ -87,7 +87,7 @@ export default function EndToEndSolutions() {
 
         <div className="relative aspect-[3/4] bg-line sm:mt-[6rem]">
           <ImageWithSkeleton
-            src="/images/machines/DM-Dostan.webp"
+            src="/images/background/DM-Dostan.webp"
             alt="Continuous freezer"
             fill
             sizes="(min-width: 640px) 50vw, 100vw"

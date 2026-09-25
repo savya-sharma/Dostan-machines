@@ -4,30 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import ImageWithSkeleton from "./ImageWithSkeleton";
 import { CornerDownRight } from "lucide-react";
 
-const SMALL_CAPTIONS = [
-  {
-    caption:
-      "From concept to completion, every installation is executed with reliable solutions tailored to each project's requirements.",
-    image: "/images/machines/CONTINUOUS-FREEZER-MACHINE.webp",
-  },
-  {
-    caption:
-      "From concept to completion, every installation is executed with precision and purpose. We combine quality .",
-    image: "/images/machines/HARDENING-TUNNEL-MACHINE.webp",
-  },
-  {
-    caption:
-      "From concept to completion, every installation is executed with precision and purpose. We combine quality craftsmanship",
-    image: "/images/machines/High-PRESSURE-HOMOGENIZER-MACHINE.webp",
-  },
+const SMALL_IMAGES = [
+  "/images/machines/GALLERY-21.webp",
+  "/images/machines/GALLERY-11.webp",
+  "/images/machines/GALLERY-01.webp",
 ];
 
-const LARGE_CAPTION =
-  "From concept to completion, every installation is executed with precision and purpose. We combine quality craftsmanship with reliable solutions tailored to each project's requirements.";
-
 const LARGE_IMAGES = [
-  "/images/machines/CHOCOBAR-MACHINE.webp",
-  "/images/machines/MULTI-PRODUCT-ICE-CREAM-FACTORY-MACHINE.webp",
+  "/images/machines/GALLERY-14.webp",
+  "/images/machines/GALLERY-27.webp",
 ];
 
 const VIDEOS = [
@@ -96,32 +81,30 @@ export default function InstalledProjects() {
 
       <div className="mt-[3rem] flex flex-col gap-8 sm:flex-row sm:gap-16">
         <p className="text-sm text-justify opacity-70 sm:w-1/2">
-          Explore DOSTAN installations across diverse production
-          environments, where engineered machinery is brought together to
-          deliver complete, reliable processing solutions.
+          Explore DOSTAN MACHINES installations across ice cream, dairy, and
+          food-processing environments, where engineered equipment is
+          integrated around specific production requirements.
         </p>
         <p className="text-sm text-justify opacity-70 sm:w-1/2">
-          From individual equipment installations to complete processing
-          systems, each project reflects our focus on precision, performance,
-          and dependable production.
+          From individual machinery to complete processing setups, each
+          installation brings together engineering, manufacturing,
+          commissioning, and technical support for dependable day-to-day
+          operations.
         </p>
       </div>
 
       <div className="mt-[4rem] grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-6">
-        {SMALL_CAPTIONS.map((item, index) => (
+        {SMALL_IMAGES.map((image, index) => (
           <div key={index}>
             <div className="relative aspect-square bg-line">
               <ImageWithSkeleton
-                src={item.image}
+                src={image}
                 alt=""
                 fill
                 sizes="(min-width: 640px) 33vw, 100vw"
                 className="object-cover"
               />
             </div>
-            <p className="mt-3 text-xs text-justify opacity-70">
-              {item.caption}
-            </p>
           </div>
         ))}
       </div>
@@ -137,9 +120,6 @@ export default function InstalledProjects() {
               className="object-contain"
             />
           </div>
-          <p className="mt-3 text-xs text-justify opacity-70">
-            {LARGE_CAPTION}
-          </p>
         </div>
         <div>
           <div className="relative aspect-square bg-line">
@@ -151,9 +131,6 @@ export default function InstalledProjects() {
               className="object-contain"
             />
           </div>
-          <p className="mt-3 text-xs text-justify text-right opacity-70">
-            {LARGE_CAPTION}
-          </p>
         </div>
       </div>
 
