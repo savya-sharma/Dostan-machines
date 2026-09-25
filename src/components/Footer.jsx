@@ -57,11 +57,11 @@ export default function Footer() {
           <h2 className="text-xl font-semibold">Contact Us</h2>
           <div className="flex flex-col items-start gap-4 text-sm">
             <a
-              href="tel:+918510027111"
+              href="tel:+919266767144"
               className="flex items-center gap-2 underline transition-colors hover:text-accent"
             >
               <Phone className="h-4 w-4 shrink-0" />
-              +91 8510027111 | +91 9266767144
+              +91 9266767144
             </a>
             <a
               href="mailto:dostanmachines@gmail.com"

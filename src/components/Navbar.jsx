@@ -14,8 +14,8 @@ const NAV_LINKS = [
   { label: "About", href: "/about" },
 ];
 
-const PHONE_DISPLAY = "+91 8510027111";
-const PHONE_TEL = "+918510027111";
+const PHONE_DISPLAY = "+91 9266767144";
+const PHONE_TEL = "+919266767144";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);

@@ -1,6 +1,6 @@
 // Single source of truth for the business WhatsApp number. Update here only —
 // every WhatsApp link in the app should be built through the helpers below.
-export const WHATSAPP_NUMBER = "918510027111";
+export const WHATSAPP_NUMBER = "919266767144";
 
 const DEFAULT_MESSAGE =
   "Hi DOSTAN Machines, I'd like to discuss my machinery requirement.";

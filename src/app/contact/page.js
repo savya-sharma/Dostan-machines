@@ -13,10 +13,10 @@ export default function ContactPage() {
 
       <div className="mt-[2rem] flex flex-col items-start gap-4 text-sm">
         <a
-          href="tel:+918510027111"
+          href="tel:+919266767144"
           className="underline transition-colors hover:text-accent"
         >
-          +91 8510027111 | +91 9266767144
+          +91 9266767144
         </a>
         <a
           href="mailto:dostanmachines@gmail.com"
