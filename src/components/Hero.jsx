@@ -30,6 +30,10 @@ const CRITICAL_TIMEOUT_MS = 30000;
 // Canvas backing-store resolution cap — enough for the 1920×1080 frames to
 // stay sharp on high-DPI screens without oversizing the canvas beyond them.
 const MAX_DPR = 2;
+// Source resolution of every frame. The canvas never needs more backing
+// pixels than the frame can actually fill (see setCanvasSize).
+const FRAME_WIDTH = 1920;
+const FRAME_HEIGHT = 1080;
 
 const framePath = (index) =>
   `/frames/frame_${String(index + FIRST_FRAME).padStart(4, "0")}.webp`;
@@ -152,8 +156,17 @@ export default function Hero() {
     // Only reallocates the canvas when the viewport actually changed —
     // assigning width/height clears and reallocates it, which on every
     // scroll update is wasted work. Returns whether it resized.
+    //
+    // The frame is drawn to cover the viewport at `cover` CSS px per frame
+    // px; a backing store denser than 1 / cover only upsamples the same
+    // source pixels (e.g. 2880×1800 on a 1440×900 @2x screen), costing fill
+    // time on every scroll update with no added detail.
     function setCanvasSize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      const cover = Math.max(
+        window.innerWidth / FRAME_WIDTH,
+        window.innerHeight / FRAME_HEIGHT
+      );
+      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR, Math.max(1, 1 / cover));
       const width = Math.round(window.innerWidth * dpr);
       const height = Math.round(window.innerHeight * dpr);
       if (canvas.width === width && canvas.height === height) return false;
@@ -188,6 +201,12 @@ export default function Hero() {
         gsap.to(frameState, {
           currentIndex: images.length - 1,
           ease: "none",
+          // On the tween, not the ScrollTrigger: the trigger's onUpdate only
+          // fires when the scroll position changes, but scrub keeps easing
+          // currentIndex for up to 2s after scrolling stops — drawing here
+          // paints every one of those steps, so the hero comes to rest on
+          // the frame that matches the scroll position.
+          onUpdate: () => drawFrame(Math.floor(frameState.currentIndex)),
           scrollTrigger: {
             trigger: parentRef.current,
             start: "top top",
@@ -196,9 +215,6 @@ export default function Hero() {
             pin: pinRef.current,
             pinSpacing: false,
             anticipatePin: 1,
-            onUpdate: (self) => {
-              drawFrame(Math.floor(frameState.currentIndex));
-            },
           },
         });
       });

@@ -97,6 +97,21 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+/* Hide scrollbars site-wide (page and inner scroll areas). Only the bar is
+   hidden — scrolling by wheel, touch, keyboard, Lenis and ScrollTrigger all
+   work exactly as before. Firefox: scrollbar-width; Chrome, Edge and Safari:
+   ::-webkit-scrollbar; legacy Edge: -ms-overflow-style. */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
