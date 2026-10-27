@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { preload } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -13,8 +13,8 @@ const FIRST_FRAME = 21;
 const LAST_FRAME = 795;
 const FRAME_COUNT = LAST_FRAME - FIRST_FRAME + 1;
 // Enough frames to cover the first stretch of scroll before the background
-// loader catches up — the animation becomes interactive after this batch
-// instead of waiting for all 795 frames (~67MB) to land first.
+// loader catches up — the loader stays up until this whole batch is loaded
+// and decoded, instead of waiting for all 795 frames to land first.
 const INITIAL_FRAMES = 60;
 // Frames in flight at once, both for the initial batch and the background
 // stream — keeps the browser's connection pool free for other page assets
@@ -22,26 +22,62 @@ const INITIAL_FRAMES = 60;
 const CONCURRENCY = 6;
 // The loader's counter only ever displays these milestones (kept in sync
 // with HeroLoader's own copy of the same list) — each one is reached only
-// once its corresponding real frame has actually settled, never sooner.
+// once its share of the initial batch has actually settled, never sooner.
 const CRITICAL_MILESTONES = [45, 65, 88, 100];
-// The loader only waits for this many frames (a small slice of the initial
-// batch, not the full 60 — those keep loading in the background regardless)
-// before revealing the Hero: one real frame per milestone above.
-const CRITICAL_FRAMES = CRITICAL_MILESTONES.length;
-// Backstop so a stalled or failed critical frame can never leave the loader
-// stuck on screen forever.
-const CRITICAL_TIMEOUT_MS = 10000;
+// Backstop so a stalled or failed frame can never leave the loader stuck on
+// screen forever.
+const CRITICAL_TIMEOUT_MS = 30000;
+// Canvas backing-store resolution cap — enough for the 1920×1080 frames to
+// stay sharp on high-DPI screens without oversizing the canvas beyond them.
+const MAX_DPR = 2;
 
 const framePath = (index) =>
-  `/compressed_images/frame_${String(index + FIRST_FRAME).padStart(4, "0")}.webp`;
+  `/frames/frame_${String(index + FIRST_FRAME).padStart(4, "0")}.webp`;
+
+// Below Tailwind's `md` breakpoint the hero is a single static image instead
+// of the scroll-driven sequence — no frames are fetched at all on phones.
+const MOBILE_QUERY = "(max-width: 767.98px)";
+const DESKTOP_QUERY = "(min-width: 768px)";
+// Portrait crop of frame_0028 (the sharpest close-up of the processing
+// plant), cut around the left tank so it fills any phone aspect ratio.
+const MOBILE_HERO_SRC = "/images/hero/hero-mobile-800.webp";
+const MOBILE_HERO_SRCSET =
+  "/images/hero/hero-mobile-600.webp 600w, /images/hero/hero-mobile-800.webp 800w";
+// 1×1 transparent GIF — lets <picture> skip the mobile image on desktop.
+const EMPTY_IMAGE = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
+const noopSubscribe = () => () => {};
+
+function subscribeToMobileQuery(onChange) {
+  const mql = window.matchMedia(MOBILE_QUERY);
+  mql.addEventListener("change", onChange);
+  return () => mql.removeEventListener("change", onChange);
+}
 
 export default function Hero() {
   const canvasRef = useRef(null);
   const parentRef = useRef(null);
   const pinRef = useRef(null);
+  const mobileImageRef = useRef(null);
   const [criticalProgress, setCriticalProgress] = useState(0);
   const [criticalReady, setCriticalReady] = useState(false);
-  const [showLoader, setShowLoader] = useState(true);
+  // True only while this render is part of the initial page load (server
+  // render + hydration); false when Hero mounts after a client-side
+  // navigation, e.g. clicking the navbar logo. The loader belongs to the
+  // first visit only — returning to Home goes straight to the hero.
+  const isInitialLoad = useSyncExternalStore(
+    noopSubscribe,
+    () => false,
+    () => true
+  );
+  const [showLoader, setShowLoader] = useState(isInitialLoad);
+  // null during SSR/hydration, then true/false — so the effect below only
+  // ever runs the branch that matches the real viewport.
+  const isMobile = useSyncExternalStore(
+    subscribeToMobileQuery,
+    () => window.matchMedia(MOBILE_QUERY).matches,
+    () => null
+  );
 
   // Emits a <link rel="preload" as="image" fetchpriority="high"> into the
   // document <head> during the server render itself, so the browser's HTML
@@ -50,10 +86,46 @@ export default function Hero() {
   // hydration to run the effect below and issue a `new Image()` request.
   // On a throttled connection that's the difference between frame 0
   // starting to download at ~150ms vs. only after the ~2s it takes the
-  // page's JS to finish loading and execute.
-  preload(framePath(0), { as: "image", fetchPriority: "high" });
+  // page's JS to finish loading and execute. Each preload is scoped by
+  // media query, so phones and desktops only fetch their own hero image.
+  preload(framePath(0), { as: "image", fetchPriority: "high", media: DESKTOP_QUERY });
+  preload(MOBILE_HERO_SRC, {
+    as: "image",
+    fetchPriority: "high",
+    imageSrcSet: MOBILE_HERO_SRCSET,
+    imageSizes: "100vw",
+    media: MOBILE_QUERY,
+  });
+
+  // Mobile: the loader waits for the static hero image instead of frames.
+  useEffect(() => {
+    if (isMobile !== true) return;
+
+    let done = false;
+    const markReady = () => {
+      if (done) return;
+      done = true;
+      setCriticalProgress(100);
+      setCriticalReady(true);
+    };
+    const timeout = setTimeout(markReady, CRITICAL_TIMEOUT_MS);
+    const img = mobileImageRef.current;
+    if (!img || (img.complete && img.naturalWidth > 0)) {
+      markReady();
+    } else {
+      img.addEventListener("load", markReady);
+      img.addEventListener("error", markReady);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+      img?.removeEventListener("load", markReady);
+      img?.removeEventListener("error", markReady);
+    };
+  }, [isMobile]);
 
   useEffect(() => {
+    if (isMobile !== false) return;
     gsap.registerPlugin(ScrollTrigger);
 
     const canvas = canvasRef.current;
@@ -63,8 +135,9 @@ export default function Hero() {
     let cancelled = false;
     let gsapCtx;
     let scrollAnimationStarted = false;
-    let criticalSettledCount = 0;
+    let initialSettledCount = 0;
     let criticalDone = false;
+    let lastDrawnIndex = -1;
 
     function markCriticalDone() {
       if (criticalDone || cancelled) return;
@@ -76,9 +149,17 @@ export default function Hero() {
     // Never leaves the loader stuck if a critical frame stalls or fails.
     const criticalTimeout = setTimeout(markCriticalDone, CRITICAL_TIMEOUT_MS);
 
+    // Only reallocates the canvas when the viewport actually changed —
+    // assigning width/height clears and reallocates it, which on every
+    // scroll update is wasted work. Returns whether it resized.
     function setCanvasSize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      const width = Math.round(window.innerWidth * dpr);
+      const height = Math.round(window.innerHeight * dpr);
+      if (canvas.width === width && canvas.height === height) return false;
+      canvas.width = width;
+      canvas.height = height;
+      return true;
     }
 
     function drawFrame(index) {
@@ -86,7 +167,10 @@ export default function Hero() {
       const img = images[index];
       if (!img || !img.complete || img.naturalWidth === 0) return;
 
-      setCanvasSize();
+      // Scrub fires many updates per frame index — skip repainting the
+      // same frame unless a resize cleared the canvas.
+      if (!setCanvasSize() && index === lastDrawnIndex) return;
+      lastDrawnIndex = index;
       const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
       const w = img.width * scale;
       const h = img.height * scale;
@@ -120,23 +204,31 @@ export default function Hero() {
       });
     }
 
+    // Settles once the frame is downloaded *and* decoded (off the main
+    // thread), so drawing it later never stalls a scroll update on a
+    // synchronous decode. Errors settle too, so nothing waits on them.
     function loadFrame(index, onSettled) {
-      return new Promise((resolve) => {
-        const img = new Image();
-        const onSettle = () => {
+      const img = new Image();
+      img.decoding = "async";
+      // Frame 0 is the LCP-critical asset — hint the browser to fetch it
+      // ahead of the rest of the initial batch.
+      if (index === 0 && "fetchPriority" in img) {
+        img.fetchPriority = "high";
+      }
+      img.src = framePath(index);
+      images[index] = img;
+      return img
+        .decode()
+        .catch(() => {})
+        .then(() => {
+          if (cancelled) return;
           onSettled?.(index);
-          resolve();
-        };
-        img.onload = onSettle;
-        img.onerror = onSettle;
-        // Frame 0 is the LCP-critical asset — hint the browser to fetch it
-        // ahead of the rest of the initial batch.
-        if (index === 0 && "fetchPriority" in img) {
-          img.fetchPriority = "high";
-        }
-        img.src = framePath(index);
-        images[index] = img;
-      });
+          // A frame scrolled to before it arrived was skipped by drawFrame —
+          // paint it now that it's here.
+          if (scrollAnimationStarted && index === Math.floor(frameState.currentIndex)) {
+            drawFrame(index);
+          }
+        });
     }
 
     // Loads [start, end) with at most `concurrency` requests in flight.
@@ -153,28 +245,28 @@ export default function Hero() {
       );
     }
 
-    // Streams the remaining frames in small batches during idle time so
-    // scrolling, hydration, and other page work stay uninterrupted.
-    function loadRestInBackground() {
-      let cursor = INITIAL_FRAMES;
+    // Next unrequested frame at or ahead of the current scroll position
+    // (falling back to any skipped ones behind it), so a fast scroll pulls
+    // the frames it's about to need first instead of queueing behind
+    // frames it has already passed.
+    function nextFrameToLoad() {
+      const from = Math.max(0, Math.min(FRAME_COUNT - 1, Math.floor(frameState.currentIndex)));
+      for (let i = from; i < FRAME_COUNT; i++) if (!images[i]) return i;
+      for (let i = from - 1; i >= 0; i--) if (!images[i]) return i;
+      return -1;
+    }
 
-      function scheduleNext() {
-        if (cancelled || cursor >= FRAME_COUNT) return;
-        const run = () => {
-          if (cancelled) return;
-          const end = Math.min(cursor + CONCURRENCY, FRAME_COUNT);
-          const batchStart = cursor;
-          cursor = end;
-          loadRange(batchStart, end, CONCURRENCY).then(scheduleNext);
-        };
-        if (typeof window.requestIdleCallback === "function") {
-          window.requestIdleCallback(run, { timeout: 1000 });
-        } else {
-          setTimeout(run, 150);
+    // Streams the remaining frames with a fixed number in flight. Downloads
+    // and decodes run off the main thread, so scrolling stays uninterrupted.
+    function loadRestInBackground() {
+      async function worker() {
+        while (!cancelled) {
+          const i = nextFrameToLoad();
+          if (i === -1) return;
+          await loadFrame(i);
         }
       }
-
-      scheduleNext();
+      for (let w = 0; w < CONCURRENCY; w++) worker();
     }
 
     // Frame 0 draws (and the scroll animation goes live) the moment it
@@ -191,16 +283,19 @@ export default function Hero() {
         startScrollAnimation();
       }
 
-      // Errored frames still "settle" (loadFrame's onerror resolves just
-      // like onload), so a failed critical frame can't stall progress —
-      // it just counts and moves on.
-      if (index < CRITICAL_FRAMES && !criticalDone) {
-        criticalSettledCount += 1;
-        setCriticalProgress(CRITICAL_MILESTONES[criticalSettledCount - 1]);
-        if (criticalSettledCount >= CRITICAL_FRAMES) {
-          clearTimeout(criticalTimeout);
-          markCriticalDone();
-        }
+      // Errored frames still "settle" (loadFrame swallows decode errors),
+      // so a failed frame can't stall progress — it just counts and moves
+      // on. Each milestone maps to an equal share of the initial batch, and
+      // the loader is only released once the whole batch is ready to draw.
+      if (criticalDone) return;
+      initialSettledCount += 1;
+      const reached = Math.floor(
+        (initialSettledCount * CRITICAL_MILESTONES.length) / INITIAL_FRAMES
+      );
+      if (reached > 0) setCriticalProgress(CRITICAL_MILESTONES[reached - 1]);
+      if (initialSettledCount >= INITIAL_FRAMES) {
+        clearTimeout(criticalTimeout);
+        markCriticalDone();
       }
     }
 
@@ -220,7 +315,7 @@ export default function Hero() {
       window.removeEventListener("resize", onResize);
       gsapCtx?.revert();
     };
-  }, []);
+  }, [isMobile]);
 
   const handleLoaderExitComplete = useCallback(() => {
     setShowLoader(false);
@@ -228,10 +323,26 @@ export default function Hero() {
 
   return (
     <section id="home" className="relative overflow-hidden bg-ink text-surface">
-      <div ref={parentRef} className="relative h-[700vh] w-full">
-        <div ref={pinRef} className="h-screen w-full">
+      <div ref={parentRef} className="relative h-[100svh] w-full md:h-[700vh]">
+        <div ref={pinRef} className="hidden h-screen w-full md:block">
           <canvas ref={canvasRef} className="h-screen w-full" />
         </div>
+
+        {/* Static hero for phones. The desktop <source> resolves to an empty
+            GIF, so wide screens never download the mobile image. */}
+        <picture className="md:hidden">
+          <source media={DESKTOP_QUERY} srcSet={EMPTY_IMAGE} />
+          <img
+            ref={mobileImageRef}
+            src={MOBILE_HERO_SRC}
+            srcSet={MOBILE_HERO_SRCSET}
+            sizes="100vw"
+            alt="DOSTAN ice cream processing plant"
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </picture>
       </div>
 
       {showLoader && (

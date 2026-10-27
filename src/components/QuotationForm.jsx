@@ -20,10 +20,26 @@ import { MACHINES, findMachineBySlug } from "@/lib/machines";
 const FORMSPREE_FORM_ID = "xoevwqln";
 
 const ENQUIRY_TYPES = [
-  { value: "individual", label: "Individual Machinery" },
-  { value: "turnkey", label: "Turnkey Plant Solution" },
-  { value: "expansion", label: "Plant Expansion / Upgrade" },
-  { value: "custom", label: "Custom Solution" },
+  {
+    value: "individual",
+    label: "Individual Machinery",
+    description: "A specific machine from our range.",
+  },
+  {
+    value: "turnkey",
+    label: "Turnkey Plant Solution",
+    description: "A complete production line, end to end.",
+  },
+  {
+    value: "expansion",
+    label: "Plant Expansion / Upgrade",
+    description: "More capacity for an existing facility.",
+  },
+  {
+    value: "custom",
+    label: "Custom Solution",
+    description: "Something engineered to your brief.",
+  },
 ];
 
 // The fields shown per enquiry type — progressive disclosure. Only the
@@ -153,11 +169,10 @@ const EMPTY = {
 };
 
 // Shared visual treatment for every text input, textarea, and select: a
-// restrained underline field (no boxed/rounded chrome) that reads as
-// technical/editorial rather than generic SaaS, with a deliberate,
-// smooth border transition on hover/focus and a clear invalid state.
+// borderless field on a single hairline — the focus state is the ink line
+// FieldShell draws over it, and invalid fields turn the hairline accent-red.
 const fieldControlClasses =
-  "w-full border-0 border-b border-line/30 bg-transparent px-0.5 py-2.5 text-sm text-ink outline-none transition-colors duration-300 ease-out placeholder:text-line/60 hover:border-ink/40 focus:border-ink aria-invalid:border-accent aria-invalid:hover:border-accent";
+  "w-full rounded-none border-0 border-b border-[#DDDDDD] bg-transparent px-0 py-3 text-base text-ink outline-none transition-colors duration-300 ease-out placeholder:text-ink/25 hover:border-line/50 aria-invalid:border-accent aria-invalid:hover:border-accent";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -280,17 +295,17 @@ function RequiredMark() {
   );
 }
 
-// A thin numbered rule marking the start of a form section — a restrained
-// editorial/technical accent (reuses the site's existing, otherwise-unused
-// mono font token) rather than new copy: purely decorative, so it never
-// touches field content or structure.
-function SectionDivider({ index }) {
+// Numbered heading that opens each form section — mono index in the accent
+// colour above a quiet, medium-weight title.
+function SectionHeader({ id, index, title }) {
   return (
-    <div className="flex items-center gap-4" aria-hidden="true">
-      <span className="font-mono text-xs tracking-wide text-line/70">
+    <div className="flex flex-col gap-2">
+      <span className="font-mono text-[0.7rem] tracking-[0.2em] text-accent" aria-hidden="true">
         {index}
       </span>
-      <span className="h-px flex-1 bg-line/15" />
+      <h2 id={id} className="text-xl font-medium leading-tight tracking-tight sm:text-2xl">
+        {title}
+      </h2>
     </div>
   );
 }
@@ -333,14 +348,21 @@ function FieldShell({ name, label, required, error, children }) {
   }, [error]);
 
   return (
-    <div ref={wrapperRef} className="group flex flex-col gap-2">
+    <div ref={wrapperRef} className="group flex flex-col gap-1">
       <label
         htmlFor={name}
-        className="text-xs font-medium uppercase tracking-wide text-ink/60 transition-colors duration-200 group-focus-within:text-ink"
+        className="text-[0.8rem] text-ink/50 transition-colors duration-300 group-focus-within:text-ink"
       >
         {label} {required && <RequiredMark />}
       </label>
-      {children}
+      <div className="relative">
+        {children}
+        {/* Ink line that draws in over the hairline on focus. */}
+        <span
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-ink transition-transform duration-500 ease-out group-focus-within:scale-x-100"
+          aria-hidden="true"
+        />
+      </div>
       {error && (
         <span ref={errorRef} id={`${name}-error`} className="text-xs text-accent">
           {error}
@@ -358,7 +380,7 @@ function FlowFields({ enquiryType, values, errors, onChange }) {
   return (
     <>
       {shortFields.length > 0 && (
-        <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
+        <div className="grid gap-x-10 gap-y-7 sm:grid-cols-2">
           {shortFields.map((field) => {
             const key = `${enquiryType}_${field.name}`;
             return (
@@ -525,90 +547,103 @@ export default function QuotationForm() {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="mt-[3rem] flex max-w-2xl flex-col gap-10"
+      className="flex flex-col gap-16 rounded-[1.25rem] bg-white p-7 shadow-[0_1px_2px_rgba(17,19,21,0.04),0_30px_60px_-30px_rgba(17,19,21,0.18)] sm:p-12"
     >
-      <div className="flex flex-col gap-5">
-        <SectionDivider index="01" />
-        <fieldset className="flex flex-col gap-2">
-          <legend className="text-xs font-semibold uppercase tracking-wide text-ink/70">
-            What are you looking for?
-          </legend>
-          <div className="mt-1 flex flex-wrap gap-3">
-            {ENQUIRY_TYPES.map((type) => (
-              <label
-                key={type.value}
-                className="flex cursor-pointer items-center gap-2 rounded-[0.7rem] border border-ink/20 px-5 py-2.5 text-xs font-semibold uppercase tracking-wide text-ink transition-all duration-200 ease-out hover:border-ink/50 has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-surface"
+      <fieldset
+        aria-labelledby="enquiry-type-heading"
+        className="flex flex-col gap-7"
+      >
+        <SectionHeader
+          id="enquiry-type-heading"
+          index="01"
+          title="What are you looking for?"
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          {ENQUIRY_TYPES.map((type) => (
+            <label
+              key={type.value}
+              className="group/card flex cursor-pointer items-start gap-3.5 rounded-[0.7rem] border border-[#E6E6E3] px-5 py-4 transition-[border-color,background-color] duration-300 ease-out hover:border-ink/30 has-[:checked]:border-ink has-[:checked]:bg-surface/60 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ink/15 has-[:focus-visible]:ring-offset-2"
+            >
+              <input
+                type="radio"
+                name="enquiryType"
+                value={type.value}
+                checked={values.enquiryType === type.value}
+                onChange={handleChange}
+                className="sr-only"
+              />
+              <span
+                className="mt-[3px] h-3.5 w-3.5 shrink-0 rounded-full border border-ink/25 transition-[border-color,border-width] duration-300 group-has-[:checked]/card:border-[4px] group-has-[:checked]/card:border-accent"
+                aria-hidden="true"
+              />
+              <span className="flex flex-col gap-1">
+                <span className="text-sm font-medium text-ink">
+                  {type.label}
+                </span>
+                <span className="text-xs text-ink/45">{type.description}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+        {errors.enquiryType && (
+          <span className="-mt-3 text-xs text-accent">{errors.enquiryType}</span>
+        )}
+      </fieldset>
+
+      <div className="flex flex-col gap-7">
+        <SectionHeader index="02" title="Project Requirements" />
+
+        {!values.enquiryType && (
+          <p className="text-sm text-ink/40">
+            Select an option above to see the details we need for your
+            enquiry.
+          </p>
+        )}
+
+        {values.enquiryType === "individual" && (
+          <FieldShell
+            name="machine"
+            label={values.machine ? "Selected Machinery" : "Select Machinery"}
+            required
+            error={errors.machine}
+          >
+            <div className="relative">
+              <select
+                id="machine"
+                name="machine"
+                value={values.machine}
+                onChange={handleChange}
+                aria-invalid={Boolean(errors.machine)}
+                aria-describedby={errors.machine ? "machine-error" : undefined}
+                className={`appearance-none pr-10 ${fieldControlClasses}`}
               >
-                <input
-                  type="radio"
-                  name="enquiryType"
-                  value={type.value}
-                  checked={values.enquiryType === type.value}
-                  onChange={handleChange}
-                  className="sr-only"
-                />
-                {type.label}
-              </label>
-            ))}
-          </div>
-          {errors.enquiryType && (
-            <span className="text-xs text-accent">{errors.enquiryType}</span>
-          )}
-        </fieldset>
+                <option value="">Select a machine</option>
+                {MACHINES.map((machine) => (
+                  <option key={machine.slug} value={machine.name}>
+                    {machine.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-line/70 transition-colors duration-200 group-focus-within:text-ink"
+                aria-hidden="true"
+              />
+            </div>
+          </FieldShell>
+        )}
+
+        <FlowFields
+          enquiryType={values.enquiryType}
+          values={values}
+          errors={errors}
+          onChange={handleChange}
+        />
       </div>
 
-      {values.enquiryType && (
-        <div className="flex flex-col gap-6">
-          <SectionDivider index="02" />
-
-          {values.enquiryType === "individual" && (
-            <FieldShell
-              name="machine"
-              label={values.machine ? "Selected Machinery" : "Select Machinery"}
-              required
-              error={errors.machine}
-            >
-              <div className="relative">
-                <select
-                  id="machine"
-                  name="machine"
-                  value={values.machine}
-                  onChange={handleChange}
-                  aria-invalid={Boolean(errors.machine)}
-                  aria-describedby={errors.machine ? "machine-error" : undefined}
-                  className={`appearance-none pr-7 ${fieldControlClasses}`}
-                >
-                  <option value="">Select a machine</option>
-                  {MACHINES.map((machine) => (
-                    <option key={machine.slug} value={machine.name}>
-                      {machine.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  className="pointer-events-none absolute right-0.5 top-1/2 h-4 w-4 -translate-y-1/2 text-line/70 transition-colors duration-200 group-focus-within:text-ink"
-                  aria-hidden="true"
-                />
-              </div>
-            </FieldShell>
-          )}
-
-          <FlowFields
-            enquiryType={values.enquiryType}
-            values={values}
-            errors={errors}
-            onChange={handleChange}
-          />
-        </div>
-      )}
-
-      <div className="flex flex-col gap-6">
-        <SectionDivider index="03" />
+      <div className="flex flex-col gap-7">
+        <SectionHeader index="03" title="Contact Details" />
         <div className="flex flex-col gap-2">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-ink/70">
-            Contact Details
-          </h2>
-          <div className="mt-1 grid gap-x-6 gap-y-5 sm:grid-cols-2">
+          <div className="grid gap-x-10 gap-y-7 sm:grid-cols-2">
             {CONTACT_FIELDS.map((field) => (
               <FieldShell
                 key={field.name}
@@ -636,25 +671,30 @@ export default function QuotationForm() {
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={submitStatus === "submitting"}
-        className="group mt-2 flex w-fit items-center gap-2.5 self-start rounded-[0.7rem] bg-ink px-8 py-3.5 text-sm font-bold uppercase tracking-wide text-surface transition-all duration-200 ease-out hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100"
-      >
-        <span>
-          {submitStatus === "submitting"
-            ? "Sending…"
-            : "Request a Turnkey Quotation"}
-        </span>
-        {submitStatus === "submitting" ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-        ) : (
-          <ArrowUpRight
-            className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-            aria-hidden="true"
-          />
-        )}
-      </button>
+      <div className="flex flex-col-reverse gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-ink/40">
+          Fields marked <RequiredMark /> are required.
+        </p>
+        <button
+          type="submit"
+          disabled={submitStatus === "submitting"}
+          className="group flex w-full items-center justify-center gap-2.5 rounded-[0.7rem] bg-ink px-8 py-4 text-sm font-bold uppercase tracking-wide text-surface transition-all duration-300 ease-out hover:bg-accent active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-ink disabled:active:scale-100 sm:w-fit"
+        >
+          <span>
+            {submitStatus === "submitting"
+              ? "Sending…"
+              : "Request a Turnkey Quotation"}
+          </span>
+          {submitStatus === "submitting" ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <ArrowUpRight
+              className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              aria-hidden="true"
+            />
+          )}
+        </button>
+      </div>
 
       <StatusPanel status={submitStatus} />
     </form>

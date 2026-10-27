@@ -2,6 +2,7 @@ import localFont from "next/font/local";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
+import TextReveal from "@/components/TextReveal";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
 import "./globals.css";
 
@@ -35,6 +36,7 @@ export default function RootLayout({ children }) {
         <SmoothScroll />
         <Navbar />
         <main className="flex-1">{children}</main>
+        <TextReveal />
         <Footer />
         <WhatsAppFloatingButton />
       </body>

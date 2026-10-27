@@ -40,6 +40,11 @@ export default function InstalledProjects() {
           const video = entry.target;
           const index = Number(video.dataset.index);
           if (entry.isIntersecting) {
+            // Already-loaded videos were paused when they scrolled out, so
+            // resume them here — the state update below is a no-op for them.
+            if (video.getAttribute("src")) {
+              video.play().catch(() => {});
+            }
             // Attaching src (below) is async via React state — actually
             // playing happens once that commits, in the effect below.
             setLoadedVideos((prev) => {
@@ -143,17 +148,19 @@ export default function InstalledProjects() {
         </a>
       </div>
 
-      <div className="mt-[4rem] grid grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="mt-[4rem] grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
         {VIDEOS.map((src, index) => (
           <video
             key={src}
             ref={(el) => (videoRefs.current[index] = el)}
             data-index={index}
-            className="aspect-square w-full bg-gray-300 object-cover"
+            className="aspect-[9/16] w-full bg-line object-cover"
             src={loadedVideos[index] ? src : undefined}
+            autoPlay
             loop
             muted
             playsInline
+            disablePictureInPicture
             preload="none"
           />
         ))}

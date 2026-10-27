@@ -10,7 +10,10 @@ export default function Footer() {
       className="relative overflow-hidden bg-cover bg-center px-[2rem] pt-[6rem] text-white"
       style={{ backgroundImage: "url(/images/background/footerbg.webp)" }}
     >
-      <div className="flex flex-col gap-12 sm:flex-row sm:items-start sm:justify-between">
+      <div
+        data-reveal-group
+        className="flex flex-col gap-12 sm:flex-row sm:items-start sm:justify-between"
+      >
         <div className="flex flex-col gap-8 sm:flex-row sm:gap-16">
           <div className="flex flex-col gap-6">
             <h2 className="text-xl font-semibold">Navigate</h2>
@@ -45,7 +48,10 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-2 text-center text-sm font-semibold">
+        <div
+          data-reveal
+          className="flex flex-col items-center gap-2 text-center text-sm font-semibold"
+        >
           DOSTAN MACHINES
           <p className="max-w-xs font-normal">
             DOSTAN engineers reliable machinery and complete production
@@ -70,7 +76,7 @@ export default function Footer() {
               <Mail className="h-4 w-4 shrink-0" />
               dostanmachines@gmail.com
             </a>
-            <span className="max-w-xs underline">
+            <span data-reveal className="max-w-xs underline">
               Plot No. 181, Udyog Kendra-1, Ecotech-III, Greater Noida, Gautam
               Buddha Nagar, Uttar Pradesh – 201306
             </span>
@@ -80,7 +86,10 @@ export default function Footer() {
       </div>
 
       <div className="mt-[6rem] -mx-[2rem] flex items-center justify-center overflow-hidden px-4 pb-[4vw] sm:pb-[2vw]">
-        <h2 className="whitespace-nowrap text-[9vw] font-bold leading-none tracking-tight">
+        <h2
+          data-reveal="chars"
+          className="whitespace-nowrap text-[9vw] font-bold leading-none tracking-tight"
+        >
           DOSTAN MACHINES
         </h2>
       </div>

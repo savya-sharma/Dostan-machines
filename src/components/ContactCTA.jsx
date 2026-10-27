@@ -8,7 +8,7 @@ export default function ContactCTA() {
         <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
           Ready to discuss your requirements?
         </h1>
-        <p className="max-w-md text-sm opacity-70">
+        <p data-reveal className="max-w-md text-sm opacity-70">
           Tell us what you need. Our team will help you find the right
           machinery or turnkey solution.
         </p>

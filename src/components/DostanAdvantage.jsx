@@ -59,7 +59,7 @@ export default function DostanAdvantage() {
     <div id="dostan-advantage" className="px-[2rem] py-[6rem]">
       <div>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl leading-tight">Why Dostan Machines</h1>
-        <p className="mt-[2rem] max-w-2xl text-justify text-[1.5rem] leading-[2rem] opacity-70 tracking-tight">
+        <p data-reveal className="mt-[2rem] max-w-2xl text-justify text-[1.5rem] leading-[2rem] opacity-70 tracking-tight">
           We engineer machinery and processing solutions for ice cream, dairy, and food manufacturing — from individual equipment to complete production systems, supported by precision engineering, advanced manufacturing, seamless installation, and dedicated after-sales support.
         </p>
         <div className="mt-[1.5rem] flex max-w-2xl justify-end">

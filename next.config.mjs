@@ -13,7 +13,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: "/compressed_images/:path*",
+        source: "/frames/:path*",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],

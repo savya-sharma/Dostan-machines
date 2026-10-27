@@ -10,7 +10,7 @@ function prefersReducedMotion() {
 }
 
 function formatPct(value) {
-  return `${String(Math.round(value)).padStart(2, "0")}%`;
+  return String(Math.round(value)).padStart(2, "0");
 }
 
 // The counter only ever visually lands on these milestones, in order, each
@@ -26,9 +26,12 @@ const HOLD_DURATION = 0.4;
 // state actually registers instead of being skipped past.
 const START_PAUSE = 0.6;
 
+const WORDMARK = "DOSTAN MACHINES";
+
 export default function HeroLoader({ progress, ready, onExitComplete }) {
   const rootRef = useRef(null);
   const brandRef = useRef(null);
+  const logoRef = useRef(null);
   const counterRef = useRef(null);
   const barTrackRef = useRef(null);
   const barFillRef = useRef(null);
@@ -37,28 +40,58 @@ export default function HeroLoader({ progress, ready, onExitComplete }) {
   const processingRef = useRef(false);
   const reachedIndexRef = useRef(-1);
   const hasStartedCountRef = useRef(false);
-  const hasEnteredRef = useRef(false);
   const hasExitedRef = useRef(false);
   const [displayText, setDisplayText] = useState(formatPct(0));
 
-  // Entrance — a simple fade in, once. No per-character choreography.
+  // Entrance, once: the logo settles in, the wordmark's letters rise out of
+  // their mask on a short stagger, then the progress line draws out from
+  // the centre and the counter fades up.
+  // No run-once guard: if the effect re-runs (React Strict Mode), the
+  // cleanup's ctx.revert() resets everything and the entrance replays.
   useEffect(() => {
-    if (hasEnteredRef.current) return;
-    hasEnteredRef.current = true;
-
     const ctx = gsap.context(() => {
-      const targets = [brandRef.current, counterRef.current, barTrackRef.current];
+      const wordmark = brandRef.current.querySelector("[data-wordmark]");
+      const letters = wordmark.querySelectorAll("[data-letter]");
       if (prefersReducedMotion()) {
-        gsap.set(targets, { opacity: 1 });
+        gsap.set([logoRef.current, wordmark, counterRef.current, barTrackRef.current], {
+          autoAlpha: 1,
+        });
         return;
       }
-      gsap.set(targets, { opacity: 0 });
-      gsap.to(targets, { opacity: 1, duration: 0.4, ease: "power2.out" });
+      gsap
+        .timeline()
+        .set(wordmark, { autoAlpha: 1 })
+        .set(letters, { yPercent: 110 })
+        .fromTo(
+          logoRef.current,
+          { autoAlpha: 0, scale: 0.92 },
+          { autoAlpha: 1, scale: 1, duration: 0.8, ease: "power3.out" }
+        )
+        .fromTo(
+          letters,
+          { yPercent: 110 },
+          { yPercent: 0, duration: 0.8, ease: "power4.out", stagger: 0.025 },
+          "-=0.55"
+        )
+        .fromTo(
+          barTrackRef.current,
+          { autoAlpha: 1, scaleX: 0 },
+          { scaleX: 1, duration: 0.7, ease: "expo.out" },
+          "-=0.5"
+        )
+        .fromTo(
+          counterRef.current,
+          { autoAlpha: 0, y: 12 },
+          { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" },
+          "<"
+        );
     }, rootRef);
 
     return () => ctx.revert();
   }, []);
 
+  // Exit: the content lifts away, then the whole screen wipes upward like a
+  // curtain, uncovering the page beneath.
   function finalizeExit() {
     if (hasExitedRef.current) return;
     hasExitedRef.current = true;
@@ -69,14 +102,20 @@ export default function HeroLoader({ progress, ready, onExitComplete }) {
     }
 
     const tl = gsap.timeline({ onComplete: () => onExitComplete?.() });
-    tl.to([brandRef.current, counterRef.current, barTrackRef.current], {
-      opacity: 0,
-      duration: 0.3,
-      ease: "power2.out",
+    tl.to([brandRef.current, counterRef.current], {
+      autoAlpha: 0,
+      y: -16,
+      duration: 0.45,
+      ease: "power2.in",
+      stagger: 0.05,
     }).to(
       rootRef.current,
-      { opacity: 0, scale: 1.015, duration: 0.55, ease: "power2.inOut" },
-      "+=0.05"
+      {
+        clipPath: "inset(0% 0% 100% 0%)",
+        duration: 0.9,
+        ease: "expo.inOut",
+      },
+      "-=0.1"
     );
   }
 
@@ -140,42 +179,57 @@ export default function HeroLoader({ progress, ready, onExitComplete }) {
   }, [progress, ready]);
 
   return (
-    <div ref={rootRef} aria-hidden="true" className="fixed inset-0 z-[70] bg-ink">
+    <div
+      ref={rootRef}
+      aria-hidden="true"
+      className="fixed inset-0 z-[70] bg-ink bg-[radial-gradient(ellipse_at_center,rgba(245,245,243,0.05)_0%,transparent_65%)]"
+      style={{ clipPath: "inset(0% 0% 0% 0%)" }}
+    >
       <div
         ref={brandRef}
-        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-4"
+        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"
       >
         <Image
+          ref={logoRef}
           src="/logos/logo-01.svg"
           alt=""
           width={80}
           height={77}
-          className="h-24 w-auto sm:h-28"
+          priority
+          className="invisible h-16 w-auto sm:h-20"
         />
-        <p className="text-lg font-medium text-accent sm:text-xl">Dostan Machines</p>
-      </div>
 
-      {/* Full-width wrapper so the bar's own width is never constrained by
-          the counter's — only their vertical stacking (and the counter's
-          right inset) live here, via flex flow rather than a guessed
-          pixel offset, so the bar stays flush under the counter at any
-          viewport width or clamp()-resolved font size. */}
-      <div className="absolute inset-x-0 bottom-6 flex flex-col items-end gap-3 sm:bottom-8">
+        <p
+          data-wordmark
+          className="invisible mt-7 flex overflow-hidden pl-[0.5em] text-[0.7rem] font-medium tracking-[0.5em] text-surface/85 sm:text-xs">
+          {Array.from(WORDMARK).map((char, i) => (
+            <span key={i} data-letter className="inline-block">
+              {char === " " ? " " : char}
+            </span>
+          ))}
+        </p>
+
+        {/* Progress line: the track draws in on entrance; the red fill
+            tracks the counter. */}
         <div
-          ref={counterRef}
-          className="pr-8 font-mono tracking-wide text-surface sm:pr-10"
-          style={{ fontSize: "clamp(3rem, 5vw, 5rem)" }}
+          ref={barTrackRef}
+          className="invisible mt-6 h-px w-40 overflow-hidden bg-surface/15 sm:w-48"
         >
-          {displayText}
-        </div>
-
-        <div ref={barTrackRef} className="h-px w-full overflow-hidden bg-surface/20">
           <div
             ref={barFillRef}
-            className="h-full w-full origin-left bg-[#D71920]"
+            className="h-full w-full origin-left bg-accent"
             style={{ transform: "scaleX(0)" }}
           />
         </div>
+      </div>
+
+      <div
+        ref={counterRef}
+        className="invisible absolute bottom-6 right-8 flex items-start font-light leading-none text-surface tabular-nums sm:bottom-8 sm:right-10"
+        style={{ fontSize: "clamp(3.5rem, 7vw, 6.5rem)" }}
+      >
+        {displayText}
+        <span className="ml-1 mt-[0.35em] text-[0.3em] font-normal text-accent">%</span>
       </div>
     </div>
   );

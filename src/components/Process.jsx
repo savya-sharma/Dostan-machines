@@ -67,7 +67,7 @@ export default function Process() {
       </h1>
 
       <div className="mt-[3rem] sm:mt-[4rem] max-w-3xl">
-        <p className="text-lg sm:text-xl leading-relaxed text-justify opacity-70">
+        <p data-reveal className="text-lg sm:text-xl leading-relaxed text-justify opacity-70">
           DOSTAN delivers processing machinery and solutions across India,
           Asia, Africa, the Middle East, and international markets,
           supporting food manufacturers with dependable equipment and

@@ -54,7 +54,7 @@ export default function EndToEndSolutions() {
         <h1 className="text-3xl leading-tight sm:text-4xl lg:text-5xl">
           End To End Solution
         </h1>
-        <p className="text-lg text-right leading-tight opacity-70 sm:max-w-md">
+        <p data-reveal className="text-lg text-right leading-tight opacity-70 sm:max-w-md">
           From individual machines to complete processing systems, DOSTAN
           delivers engineered solutions designed around your production
           requirements.
