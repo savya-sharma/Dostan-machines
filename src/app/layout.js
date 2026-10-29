@@ -4,7 +4,9 @@ import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
 import TextReveal from "@/components/TextReveal";
 import WhatsAppFloatingButton from "@/components/WhatsAppFloatingButton";
+import { festivalBootScript } from "@/lib/festival";
 import "./globals.css";
+import "../styles/festivals/diwali.css";
 
 const suisseIntl = localFont({
   src: "../../public/fonts/SuisseIntl-Medium.ttf",
@@ -31,7 +33,15 @@ export default function RootLayout({ children }) {
       lang="en"
       data-scroll-behavior="smooth"
       className={`${suisseIntl.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      // The festival boot script below adds data-festival to <html> before
+      // hydration (dates are checked in the browser, since pages are
+      // prerendered); this only silences the expected attribute mismatch on
+      // <html> itself, not on anything inside it.
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: festivalBootScript() }} />
+      </head>
       <body className="min-h-full flex flex-col overflow-x-hidden">
         <SmoothScroll />
         <Navbar />

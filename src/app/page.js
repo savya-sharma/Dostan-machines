@@ -10,6 +10,8 @@ import FactoryManufacturing from "@/components/FactoryManufacturing";
 import KnowledgeCenter from "@/components/KnowledgeCenter";
 import FAQ from "@/components/FAQ";
 import ContactCTA from "@/components/ContactCTA";
+import DiwaliOnly from "@/components/festival/diwali/DiwaliOnly";
+import DiwaliSectionDivider from "@/components/festival/diwali/DiwaliSectionDivider";
 
 export default function Home() {
   return (
@@ -18,12 +20,18 @@ export default function Home() {
       <Brands />
       <DostanAdvantage />
       <ProductCategories />
+      <DiwaliOnly>
+        <DiwaliSectionDivider variant="lotus" />
+      </DiwaliOnly>
       <EndToEndSolutions />
       <Process />
       <InstalledProjects />
       <Testimonials />
       <FactoryManufacturing />
       <KnowledgeCenter />
+      <DiwaliOnly>
+        <DiwaliSectionDivider variant="facet" />
+      </DiwaliOnly>
       <FAQ />
       <ContactCTA />
     </>

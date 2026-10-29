@@ -2,6 +2,8 @@
 
 import { Mail, Phone } from "lucide-react";
 import { handleAnchorClick } from "@/lib/scrollToHash";
+import DiwaliOnly from "./festival/diwali/DiwaliOnly";
+import DiyaAccent from "./festival/diwali/DiyaAccent";
 
 export default function Footer() {
   return (
@@ -81,6 +83,9 @@ export default function Footer() {
               Buddha Nagar, Uttar Pradesh – 201306
             </span>
             <p className="opacity-70">&copy; 2026 Dostan Machines</p>
+            <DiwaliOnly>
+              <DiyaAccent size={36} tone="light" title="Happy Diwali" />
+            </DiwaliOnly>
           </div>
         </div>
       </div>

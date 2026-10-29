@@ -17,6 +17,8 @@ import {
 import { handleAnchorClick } from "@/lib/scrollToHash";
 import { getWhatsAppLink } from "@/lib/whatsapp";
 import { findMachineByImage } from "@/data/machines";
+import DiwaliOnly from "@/components/festival/diwali/DiwaliOnly";
+import NavbarToran from "@/components/festival/diwali/NavbarToran";
 
 // Every Solutions entry is an existing homepage section; descriptions are
 // condensed from that section's own copy.
@@ -810,6 +812,14 @@ export default function Navbar() {
             }`}
           />
         </button>
+
+        {/* Diwali toran: sits behind the bar's contents (and its dropdown
+            panels) and ignores the pointer. */}
+        <DiwaliOnly>
+          <div className="pointer-events-none absolute inset-0 -z-10">
+            <NavbarToran menuOpen={isOpen} />
+          </div>
+        </DiwaliOnly>
       </nav>
 
       {overlayMounted && (

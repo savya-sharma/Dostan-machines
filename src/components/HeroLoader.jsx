@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
+import { DIWALI_THEME_ID } from "@/config/festivals";
+import { useFestival } from "@/lib/useFestival";
+import DiwaliLoaderScene from "@/components/festival/diwali/DiwaliLoaderScene";
 
 function prefersReducedMotion() {
   if (typeof window === "undefined") return true;
@@ -29,12 +32,15 @@ const START_PAUSE = 0.6;
 const WORDMARK = "DOSTAN MACHINES";
 
 export default function HeroLoader({ progress, ready, onExitComplete }) {
+  const festive = useFestival() === DIWALI_THEME_ID;
   const rootRef = useRef(null);
   const brandRef = useRef(null);
   const logoRef = useRef(null);
   const counterRef = useRef(null);
   const barTrackRef = useRef(null);
   const barFillRef = useRef(null);
+  // Diwali: the scene that runs its own choreography and the final reveal.
+  const sceneRef = useRef(null);
   const displayValueRef = useRef({ value: 0 });
   const queueRef = useRef([]);
   const processingRef = useRef(false);
@@ -49,6 +55,7 @@ export default function HeroLoader({ progress, ready, onExitComplete }) {
   // No run-once guard: if the effect re-runs (React Strict Mode), the
   // cleanup's ctx.revert() resets everything and the entrance replays.
   useEffect(() => {
+    if (festive) return;
     const ctx = gsap.context(() => {
       const wordmark = brandRef.current.querySelector("[data-wordmark]");
       const letters = wordmark.querySelectorAll("[data-letter]");
@@ -88,7 +95,7 @@ export default function HeroLoader({ progress, ready, onExitComplete }) {
     }, rootRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [festive]);
 
   // Exit: the content lifts away, then the whole screen wipes upward like a
   // curtain, uncovering the page beneath.
@@ -98,6 +105,11 @@ export default function HeroLoader({ progress, ready, onExitComplete }) {
 
     if (prefersReducedMotion()) {
       onExitComplete?.();
+      return;
+    }
+
+    if (festive) {
+      sceneRef.current?.exit(() => onExitComplete?.());
       return;
     }
 
@@ -177,6 +189,46 @@ export default function HeroLoader({ progress, ready, onExitComplete }) {
     processQueue();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, ready]);
+
+  const wordmark = (
+    <p
+      data-wordmark
+      className="invisible mt-7 flex overflow-hidden pl-[0.5em] text-[0.7rem] font-medium tracking-[0.5em] text-surface/85 sm:text-xs">
+      {Array.from(WORDMARK).map((char, i) => (
+        <span key={i} data-letter className="inline-block">
+          {char === " " ? " " : char}
+        </span>
+      ))}
+    </p>
+  );
+
+  // Progress line: the track draws in on entrance; the red fill tracks the
+  // counter.
+  const progressLine = (
+    <div ref={barTrackRef} data-progress-line className="invisible mt-6 h-px w-40 overflow-hidden bg-surface/15 sm:w-48">
+      <div
+        ref={barFillRef}
+        className="h-full w-full origin-left bg-accent"
+        style={{ transform: "scaleX(0)" }}
+      />
+    </div>
+  );
+
+  const counter = (
+    <div
+      ref={counterRef}
+      data-counter
+      className="invisible absolute bottom-6 right-8 flex items-start font-light leading-none text-surface tabular-nums sm:bottom-8 sm:right-10"
+      style={{ fontSize: "clamp(3.5rem, 7vw, 6.5rem)" }}
+    >
+      {displayText}
+      <span className="ml-1 mt-[0.35em] text-[0.3em] font-normal text-accent">%</span>
+    </div>
+  );
+
+  if (festive) {
+    return <DiwaliLoaderScene ref={sceneRef} wordmark={wordmark} progressLine={progressLine} counter={counter} />;
+  }
 
   return (
     <div

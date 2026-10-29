@@ -2,6 +2,7 @@ import Link from "next/link";
 import ImageWithSkeleton from "./ImageWithSkeleton";
 import { CornerDownRight } from "lucide-react";
 import { findMachineByImage } from "@/data/machines";
+import DiwaliCardSweep from "./festival/diwali/DiwaliCardSweep";
 
 // The first six gallery photos, in file order. Each card's name, purpose,
 // and link are looked up from the catalog by this image (never
@@ -43,6 +44,7 @@ function CategoryCard({ image }) {
             View
           </span>
         </div>
+        <DiwaliCardSweep src={image} />
       </div>
       <div className="mt-3 flex items-start justify-between gap-6">
         <p className="shrink-0 text-xs">{name}</p>

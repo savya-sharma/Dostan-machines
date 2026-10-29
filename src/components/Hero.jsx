@@ -5,6 +5,8 @@ import { preload } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HeroLoader from "./HeroLoader";
+import DiwaliOnly from "./festival/diwali/DiwaliOnly";
+import DiwaliHeroAccents from "./festival/diwali/DiwaliHeroAccents";
 
 // The sequence starts at frame_0021.webp (frames 1-20 are skipped) and still
 // runs through the final frame_0795.webp — every index below is relative to
@@ -38,31 +40,22 @@ const FRAME_HEIGHT = 1080;
 const framePath = (index) =>
   `/frames/frame_${String(index + FIRST_FRAME).padStart(4, "0")}.webp`;
 
-// Below Tailwind's `md` breakpoint the hero is a single static image instead
-// of the scroll-driven sequence — no frames are fetched at all on phones.
-const MOBILE_QUERY = "(max-width: 767.98px)";
-const DESKTOP_QUERY = "(min-width: 768px)";
-// Portrait crop of frame_0028 (the sharpest close-up of the processing
-// plant), cut around the left tank so it fills any phone aspect ratio.
-const MOBILE_HERO_SRC = "/images/hero/hero-mobile-800.webp";
-const MOBILE_HERO_SRCSET =
-  "/images/hero/hero-mobile-600.webp 600w, /images/hero/hero-mobile-800.webp 800w";
-// 1×1 transparent GIF — lets <picture> skip the mobile image on desktop.
-const EMPTY_IMAGE = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+// The frame sequence finishes at this share of the pinned scroll range; the
+// rest holds the final frame, so the hero never releases into the next
+// section before the animation has played out.
+const SEQUENCE_END = 0.85;
+// Frames track the scroll position exactly (no extra scrub lag), which is
+// what guarantees the last frame is showing before the hero releases, even
+// on a fast flick. Motion stays smooth: Lenis already eases wheel scrolling
+// on desktop, and touch scrolling has its own momentum on phones.
+const SCRUB_SMOOTHING = true;
 
 const noopSubscribe = () => () => {};
-
-function subscribeToMobileQuery(onChange) {
-  const mql = window.matchMedia(MOBILE_QUERY);
-  mql.addEventListener("change", onChange);
-  return () => mql.removeEventListener("change", onChange);
-}
 
 export default function Hero() {
   const canvasRef = useRef(null);
   const parentRef = useRef(null);
   const pinRef = useRef(null);
-  const mobileImageRef = useRef(null);
   const [criticalProgress, setCriticalProgress] = useState(0);
   const [criticalReady, setCriticalReady] = useState(false);
   // True only while this render is part of the initial page load (server
@@ -75,13 +68,6 @@ export default function Hero() {
     () => true
   );
   const [showLoader, setShowLoader] = useState(isInitialLoad);
-  // null during SSR/hydration, then true/false — so the effect below only
-  // ever runs the branch that matches the real viewport.
-  const isMobile = useSyncExternalStore(
-    subscribeToMobileQuery,
-    () => window.matchMedia(MOBILE_QUERY).matches,
-    () => null
-  );
 
   // Emits a <link rel="preload" as="image" fetchpriority="high"> into the
   // document <head> during the server render itself, so the browser's HTML
@@ -90,47 +76,15 @@ export default function Hero() {
   // hydration to run the effect below and issue a `new Image()` request.
   // On a throttled connection that's the difference between frame 0
   // starting to download at ~150ms vs. only after the ~2s it takes the
-  // page's JS to finish loading and execute. Each preload is scoped by
-  // media query, so phones and desktops only fetch their own hero image.
-  preload(framePath(0), { as: "image", fetchPriority: "high", media: DESKTOP_QUERY });
-  preload(MOBILE_HERO_SRC, {
-    as: "image",
-    fetchPriority: "high",
-    imageSrcSet: MOBILE_HERO_SRCSET,
-    imageSizes: "100vw",
-    media: MOBILE_QUERY,
-  });
-
-  // Mobile: the loader waits for the static hero image instead of frames.
-  useEffect(() => {
-    if (isMobile !== true) return;
-
-    let done = false;
-    const markReady = () => {
-      if (done) return;
-      done = true;
-      setCriticalProgress(100);
-      setCriticalReady(true);
-    };
-    const timeout = setTimeout(markReady, CRITICAL_TIMEOUT_MS);
-    const img = mobileImageRef.current;
-    if (!img || (img.complete && img.naturalWidth > 0)) {
-      markReady();
-    } else {
-      img.addEventListener("load", markReady);
-      img.addEventListener("error", markReady);
-    }
-
-    return () => {
-      clearTimeout(timeout);
-      img?.removeEventListener("load", markReady);
-      img?.removeEventListener("error", markReady);
-    };
-  }, [isMobile]);
+  // page's JS to finish loading and execute.
+  preload(framePath(0), { as: "image", fetchPriority: "high" });
 
   useEffect(() => {
-    if (isMobile !== false) return;
     gsap.registerPlugin(ScrollTrigger);
+    // Phones fire resize events whenever the address bar shows or hides
+    // while scrolling; refreshing ScrollTrigger on those would make the
+    // pinned hero jump. Real orientation/width changes still refresh.
+    ScrollTrigger.config({ ignoreMobileResize: true });
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -161,14 +115,18 @@ export default function Hero() {
     // px; a backing store denser than 1 / cover only upsamples the same
     // source pixels (e.g. 2880×1800 on a 1440×900 @2x screen), costing fill
     // time on every scroll update with no added detail.
+    //
+    // Sized from the canvas's own CSS box (h-screen), not innerHeight: on
+    // phones innerHeight changes as the address bar shows and hides while
+    // 100vh doesn't, and a backing store with a different aspect ratio than
+    // the box would be stretched to fit it.
     function setCanvasSize() {
-      const cover = Math.max(
-        window.innerWidth / FRAME_WIDTH,
-        window.innerHeight / FRAME_HEIGHT
-      );
+      const cssWidth = canvas.clientWidth || window.innerWidth;
+      const cssHeight = canvas.clientHeight || window.innerHeight;
+      const cover = Math.max(cssWidth / FRAME_WIDTH, cssHeight / FRAME_HEIGHT);
       const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR, Math.max(1, 1 / cover));
-      const width = Math.round(window.innerWidth * dpr);
-      const height = Math.round(window.innerHeight * dpr);
+      const width = Math.round(cssWidth * dpr);
+      const height = Math.round(cssHeight * dpr);
       if (canvas.width === width && canvas.height === height) return false;
       canvas.width = width;
       canvas.height = height;
@@ -198,25 +156,31 @@ export default function Hero() {
       if (scrollAnimationStarted) return;
       scrollAnimationStarted = true;
       gsapCtx = gsap.context(() => {
-        gsap.to(frameState, {
-          currentIndex: images.length - 1,
-          ease: "none",
-          // On the tween, not the ScrollTrigger: the trigger's onUpdate only
-          // fires when the scroll position changes, but scrub keeps easing
-          // currentIndex for up to 2s after scrolling stops — drawing here
-          // paints every one of those steps, so the hero comes to rest on
-          // the frame that matches the scroll position.
-          onUpdate: () => drawFrame(Math.floor(frameState.currentIndex)),
-          scrollTrigger: {
-            trigger: parentRef.current,
-            start: "top top",
-            end: "bottom bottom",
-            scrub: 2,
-            pin: pinRef.current,
-            pinSpacing: false,
-            anticipatePin: 1,
-          },
-        });
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: parentRef.current,
+              start: "top top",
+              end: "bottom bottom",
+              scrub: SCRUB_SMOOTHING,
+              pin: pinRef.current,
+              pinSpacing: false,
+              anticipatePin: 1,
+            },
+          })
+          .to(frameState, {
+            currentIndex: images.length - 1,
+            ease: "none",
+            duration: SEQUENCE_END,
+            // On the tween, not the ScrollTrigger: the trigger's onUpdate
+            // only fires when the scroll position changes, but scrub keeps
+            // easing currentIndex after scrolling stops — drawing here paints
+            // every one of those steps, so the hero comes to rest on the
+            // frame that matches the scroll position.
+            onUpdate: () => drawFrame(Math.floor(frameState.currentIndex)),
+          })
+          // Hold on the final frame for the rest of the pin.
+          .to({}, { duration: 1 - SEQUENCE_END });
       });
     }
 
@@ -331,7 +295,7 @@ export default function Hero() {
       window.removeEventListener("resize", onResize);
       gsapCtx?.revert();
     };
-  }, [isMobile]);
+  }, []);
 
   const handleLoaderExitComplete = useCallback(() => {
     setShowLoader(false);
@@ -339,26 +303,13 @@ export default function Hero() {
 
   return (
     <section id="home" className="relative overflow-hidden bg-ink text-surface">
-      <div ref={parentRef} className="relative h-[100svh] w-full md:h-[700vh]">
-        <div ref={pinRef} className="hidden h-screen w-full md:block">
+      <div ref={parentRef} className="relative h-[700vh] w-full">
+        <div ref={pinRef} className="relative h-screen w-full">
           <canvas ref={canvasRef} className="h-screen w-full" />
+          <DiwaliOnly>
+            <DiwaliHeroAccents play={!showLoader} />
+          </DiwaliOnly>
         </div>
-
-        {/* Static hero for phones. The desktop <source> resolves to an empty
-            GIF, so wide screens never download the mobile image. */}
-        <picture className="md:hidden">
-          <source media={DESKTOP_QUERY} srcSet={EMPTY_IMAGE} />
-          <img
-            ref={mobileImageRef}
-            src={MOBILE_HERO_SRC}
-            srcSet={MOBILE_HERO_SRCSET}
-            sizes="100vw"
-            alt="DOSTAN ice cream processing plant"
-            fetchPriority="high"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        </picture>
       </div>
 
       {showLoader && (

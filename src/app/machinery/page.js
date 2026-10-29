@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ImageWithSkeleton from "@/components/ImageWithSkeleton";
 import { MACHINES } from "@/data/machines";
+import DiwaliCardSweep from "@/components/festival/diwali/DiwaliCardSweep";
 
 export const metadata = {
   title: "Machinery | Dostan Machines",
@@ -34,6 +35,7 @@ function MachineCard({ machine }) {
             View
           </span>
         </div>
+        <DiwaliCardSweep src={machine.image} />
       </div>
       <div className="mt-3 flex items-start justify-between gap-6">
         <p className="shrink-0 text-xs">{machine.name}</p>
